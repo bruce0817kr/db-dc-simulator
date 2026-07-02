@@ -5,9 +5,13 @@ export function calculateDcAmount(
   wageGrowthRate: number,
   currentServiceYears: number,
   remainingServiceYears: number,
-  dcReturnRate: number
+  dcReturnRate: number,
+  transferAmount?: number
 ): number {
-  const settlement = calculateCurrentDbSettlement(currentSalary, currentServiceYears);
+  const settlement =
+    transferAmount !== undefined
+      ? transferAmount
+      : calculateCurrentDbSettlement(currentSalary, currentServiceYears);
   const n = remainingServiceYears;
   const r = dcReturnRate;
   const g = wageGrowthRate;

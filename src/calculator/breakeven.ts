@@ -5,7 +5,8 @@ export function findBreakevenReturnRate(
   currentSalary: number,
   wageGrowthRate: number,
   currentServiceYears: number,
-  remainingServiceYears: number
+  remainingServiceYears: number,
+  transferAmount?: number
 ): number | null {
   const n = remainingServiceYears;
   if (n === 0) return null;
@@ -23,7 +24,8 @@ export function findBreakevenReturnRate(
       wageGrowthRate,
       currentServiceYears,
       remainingServiceYears,
-      r
+      r,
+      transferAmount
     ) - db;
 
   const lo = -0.99;

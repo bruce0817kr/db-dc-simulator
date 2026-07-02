@@ -46,6 +46,13 @@ settlement FV: S₀/12 × y₀ × (1+g)^n
 
 DC 합계: S₀(1+g)^n / 12 × (y₀ + n) = finalSalary / 12 × (y₀ + n) = DB
 
+## 전환 방식
+
+| 방식 | 설명 |
+|------|------|
+| TRANSFER_ALL_TO_DC | 전환 시점 DB 정산금(S₀/12 × y₀)을 전액 DC로 이전한다. |
+| CUSTOM_TRANSFER_AMOUNT | 계산된 현재 DB 정산금을 회사 규약상 실제 정산금으로 대체하는 방식. 사용자가 입력한 `customTransferAmount` 값이 settlement 대신 사용된다. DB 유지 시나리오에는 영향 없음. |
+
 ## MVP 제외 항목
 
 다음 항목은 MVP 범위에서 제외되며 향후 버전에서 구현 예정이다.

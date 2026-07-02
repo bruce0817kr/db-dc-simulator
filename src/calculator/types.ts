@@ -1,4 +1,4 @@
-export type ConversionType = "TRANSFER_ALL_TO_DC";
+export type ConversionType = "TRANSFER_ALL_TO_DC" | "CUSTOM_TRANSFER_AMOUNT";
 
 export interface SimulationInput {
   currentSalary: number;
@@ -6,8 +6,8 @@ export interface SimulationInput {
   remainingServiceYears: number;
   wageGrowthRate: number;
   dcReturnRate: number;
-  // conversionType does not affect math in MVP; reserved for future conversion scenarios
   conversionType: ConversionType;
+  customTransferAmount?: number;
 }
 
 export interface SimulationResult {
