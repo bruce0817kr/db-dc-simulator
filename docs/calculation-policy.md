@@ -117,6 +117,27 @@ probabilityDcBeatsDb = (dc > db인 iteration 수) / 전체 iteration 수
 
 엄격 부등호(dc > db)를 사용하며, 동률(dc === db)은 승률에 포함하지 않는다.
 
+## 스트레스 테스트
+
+### 모델 식
+
+```
+스트레스 DC = 기준 DC × (1 − riskyAssetWeight × dropRate)
+```
+
+기준 DC는 기존 결정론적 경로(`calculateDcAmount`, 현재 `dcReturnRate`)의 결괏값이다.
+
+### 가정
+
+- 쇼크는 퇴직 직전 1회 발생한다.
+- 위험자산 부분(riskyAssetWeight)만 하락한다. 안전자산 부분은 영향 없음.
+- CUSTOM(직접 입력) 선택 시 `riskyAssetWeight = 1.0` (보수적 가정).
+- 하락률 4종 고정: 10%, 20%, 30%, 40%.
+
+### CUSTOM 보수적 가정 근거
+
+직접 입력 방식은 포트폴리오 구성 정보가 없으므로 전액 위험자산으로 간주하여 최대 충격을 표시한다.
+
 ## MVP 제외 항목
 
 다음 항목은 MVP 범위에서 제외되며 향후 버전에서 구현 예정이다.

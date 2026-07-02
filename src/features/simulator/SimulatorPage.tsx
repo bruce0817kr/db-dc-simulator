@@ -9,13 +9,14 @@ import { AssumptionNotice } from "./components/AssumptionNotice";
 import { ShareSection } from "./components/ShareSection";
 import { SensitivitySection } from "./components/SensitivitySection";
 import { RiskSection } from "./components/RiskSection";
+import { StressSection } from "./components/StressSection";
 import { parseSearchToFormValues } from "./utils/urlParams";
 
 export function SimulatorPage() {
   const [initialValues] = useState(() =>
     typeof window === "undefined" ? {} : parseSearchToFormValues(window.location.search)
   );
-  const { values, errors, input, result, volatility, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
+  const { values, errors, input, result, volatility, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
     useSimulatorForm(initialValues);
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -40,6 +41,14 @@ export function SimulatorPage() {
           {input && <SensitivitySection input={input} />}
           {input && result && volatility !== null && (
             <RiskSection input={input} volatility={volatility} dbAmount={result.dbAmount} />
+          )}
+          {input && result && (
+            <StressSection
+              input={input}
+              result={result}
+              riskyAssetWeight={riskyAssetWeight}
+              isCustomWeight={values.portfolioPresetId === "CUSTOM"}
+            />
           )}
           <ShareSection values={values} disabled={hasErrors} />
         </div>

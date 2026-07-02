@@ -87,5 +87,11 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     setValues((prev) => ({ ...prev, portfolioPresetId: id, dcReturnRate: rateStr }));
   }
 
-  return { values, errors, input, result, volatility, onChange, onBlur, onReset, applyScenario, onSelectPreset };
+  const riskyAssetWeight = useMemo<number>(() => {
+    if (values.portfolioPresetId === "CUSTOM") return 1.0;
+    const preset = PORTFOLIO_PRESETS.find((p) => p.id === values.portfolioPresetId);
+    return preset ? preset.riskyAssetWeight : 1.0;
+  }, [values.portfolioPresetId]);
+
+  return { values, errors, input, result, volatility, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset };
 }

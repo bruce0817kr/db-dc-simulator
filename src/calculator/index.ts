@@ -19,3 +19,5 @@ export { DEFAULT_RULE_SET, exceedsRiskyAssetLimit } from "./rules";
 export type { MonteCarloInput, MonteCarloResult } from "./monte-carlo";
 export { runMonteCarlo } from "./monte-carlo";
 export { mulberry32, createNormalSampler } from "./random";
+export type { StressScenario } from "./stress";
+export { DEFAULT_STRESS_DROP_RATES, buildStressScenarios } from "./stress";

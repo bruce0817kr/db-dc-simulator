@@ -265,4 +265,43 @@ describe("SimulatorPage", () => {
       screen.queryByText("운용 성과가 흔들린다면? (리스크 시뮬레이션)")
     ).toBeNull();
   });
+
+  it("(stress-a) 기본값(CUSTOM)에서 h2 렌더 + 표 4행 + '100%' 가정 표기", () => {
+    render(<SimulatorPage />);
+    expect(
+      screen.getByText("퇴직 직전 시장이 하락한다면? (스트레스 테스트)")
+    ).toBeTruthy();
+    expect(
+      screen.getByText((text) => text.includes("100%") && text.includes("보수적 가정"))
+    ).toBeTruthy();
+    const rows = screen.getAllByText((text) => /^(10|20|30|40)%$/.test(text));
+    expect(rows.length).toBe(4);
+  });
+
+  it("(stress-b) 프리셋 sp500 선택 → '70%' 가정 표기", () => {
+    render(<SimulatorPage />);
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "sp500" } });
+    expect(
+      screen.getByText((text) => text.includes("70%") && text.includes("프리셋 기준"))
+    ).toBeTruthy();
+  });
+
+  it("(stress-c) 예금형 선택 → '영향을 받지 않습니다' 문구 + 표 미렌더", () => {
+    render(<SimulatorPage />);
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "deposit" } });
+    expect(
+      screen.getByText((text) => text.includes("영향을 받지 않습니다"))
+    ).toBeTruthy();
+    const rows = screen.queryAllByText((text) => /^(10|20|30|40)%$/.test(text));
+    expect(rows.length).toBe(0);
+  });
+
+  it("(stress-d) 고지 문구 렌더", () => {
+    render(<SimulatorPage />);
+    expect(
+      screen.getByText((text) => text.includes("쇼크는 퇴직 직전 1회 발생을 가정한 단순화 모델입니다"))
+    ).toBeTruthy();
+  });
 });
