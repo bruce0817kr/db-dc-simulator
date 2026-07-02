@@ -17,11 +17,19 @@ const DEFAULT_FORM_VALUES: SimulatorFormValues = {
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
   portfolioPresetId: "CUSTOM",
+  salaryPathMode: "CONSTANT_GROWTH",
+  peakStartYear: "",
+  peakCutRate: "",
+  peakPostGrowthRate: "0",
+  stepUpYear: "",
+  stepUpRate: "",
+  dbAverageSalary: "",
 };
 
 const KRW_FIELDS: Array<keyof SimulatorFormValues> = [
   "currentSalary",
   "customTransferAmount",
+  "dbAverageSalary",
 ];
 
 function formatKRWField(raw: string): string {

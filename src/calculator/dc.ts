@@ -7,7 +7,8 @@ export function calculateDcAmount(
   currentServiceYears: number,
   remainingServiceYears: number,
   dcReturnRate: number,
-  transferAmount?: number
+  transferAmount?: number,
+  salaryPath?: number[]
 ): number {
   const settlement =
     transferAmount !== undefined
@@ -20,7 +21,10 @@ export function calculateDcAmount(
   let dcAmount = settlement * Math.pow(1 + r, n);
 
   for (let t = 1; t <= n; t++) {
-    const contribution = currentSalary * Math.pow(1 + g, t) * DEFAULT_RULE_SET.dcContributionRate;
+    const salary = salaryPath !== undefined
+      ? salaryPath[t - 1]
+      : currentSalary * Math.pow(1 + g, t);
+    const contribution = salary * DEFAULT_RULE_SET.dcContributionRate;
     dcAmount += contribution * Math.pow(1 + r, n - t);
   }
 

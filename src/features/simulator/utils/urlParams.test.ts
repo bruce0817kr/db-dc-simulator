@@ -13,6 +13,13 @@ const BASE_VALUES: SimulatorFormValues = {
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
   portfolioPresetId: "CUSTOM",
+  salaryPathMode: "CONSTANT_GROWTH",
+  peakStartYear: "",
+  peakCutRate: "",
+  peakPostGrowthRate: "0",
+  stepUpYear: "",
+  stepUpRate: "",
+  dbAverageSalary: "",
 };
 
 describe("buildShareUrl / parseSearchToFormValues 왕복", () => {

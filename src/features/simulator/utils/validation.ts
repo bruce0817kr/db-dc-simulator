@@ -1,4 +1,5 @@
 import { SimulationInput } from "@/src/calculator/types";
+import { SalaryPathConfig } from "@/src/calculator/salary-path";
 import { SimulatorFormValues, FieldErrors } from "../types";
 import { parseKRWInput, parsePercentInput } from "./formatters";
 
@@ -57,8 +58,84 @@ export function validateForm(values: SimulatorFormValues): {
     errors.dcVolatility = "연간 변동성은 0%에서 60% 사이로 입력해주세요.";
   }
 
+  const remainingYears = remainingServiceYears ?? 0;
+
+  if (values.salaryPathMode === "WAGE_PEAK") {
+    const peakStartYearRaw = parseKRWInput(values.peakStartYear);
+    if (
+      peakStartYearRaw === null ||
+      !Number.isInteger(peakStartYearRaw) ||
+      peakStartYearRaw < 1 ||
+      peakStartYearRaw > remainingYears
+    ) {
+      errors.peakStartYear =
+        "피크 시작 연차는 1년차부터 남은 근속연수 이내의 정수로 입력해주세요.";
+    }
+    const peakCutRateRaw = parsePercentInput(values.peakCutRate);
+    if (peakCutRateRaw === null || peakCutRateRaw < 0 || peakCutRateRaw > 0.5) {
+      errors.peakCutRate = "감액률은 0%에서 50% 사이로 입력해주세요.";
+    }
+    const peakPostGrowthRateRaw = parsePercentInput(values.peakPostGrowthRate);
+    if (
+      peakPostGrowthRateRaw === null ||
+      peakPostGrowthRateRaw < -0.1 ||
+      peakPostGrowthRateRaw > 0.2
+    ) {
+      errors.peakPostGrowthRate = "피크 이후 상승률은 -10%에서 20% 사이로 입력해주세요.";
+    }
+  }
+
+  if (values.salaryPathMode === "STEP_UP") {
+    const stepUpYearRaw = parseKRWInput(values.stepUpYear);
+    if (
+      stepUpYearRaw === null ||
+      !Number.isInteger(stepUpYearRaw) ||
+      stepUpYearRaw < 1 ||
+      stepUpYearRaw > remainingYears
+    ) {
+      errors.stepUpYear =
+        "점프 연차는 1년차부터 남은 근속연수 이내의 정수로 입력해주세요.";
+    }
+    const stepUpRateRaw = parsePercentInput(values.stepUpRate);
+    if (stepUpRateRaw === null || stepUpRateRaw < 0 || stepUpRateRaw > 1.0) {
+      errors.stepUpRate = "추가 인상률은 0%에서 100% 사이로 입력해주세요.";
+    }
+  }
+
+  let dbAverageSalaryOverride: number | undefined = undefined;
+  if ((values.dbAverageSalary ?? "").trim() !== "") {
+    const parsed = parseKRWInput(values.dbAverageSalary);
+    if (parsed === null || parsed <= 0) {
+      errors.dbAverageSalary = "평균임금은 0보다 큰 금액으로 입력해주세요.";
+    } else {
+      dbAverageSalaryOverride = parsed;
+    }
+  }
+
   if (Object.keys(errors).length > 0) {
     return { errors, input: null, volatility: null };
+  }
+
+  let salaryPathConfig: SalaryPathConfig | undefined = undefined;
+  if (values.salaryPathMode === "WAGE_PEAK") {
+    salaryPathConfig = {
+      mode: "WAGE_PEAK",
+      wagePeak: {
+        peakStartYear: parseKRWInput(values.peakStartYear)!,
+        cutRate: parsePercentInput(values.peakCutRate)!,
+        postPeakGrowthRate: parsePercentInput(values.peakPostGrowthRate)!,
+      },
+    };
+  } else if (values.salaryPathMode === "STEP_UP") {
+    salaryPathConfig = {
+      mode: "STEP_UP",
+      stepUps: [
+        {
+          yearIndex: parseKRWInput(values.stepUpYear)!,
+          extraRaiseRate: parsePercentInput(values.stepUpRate)!,
+        },
+      ],
+    };
   }
 
   const input: SimulationInput = {
@@ -69,6 +146,8 @@ export function validateForm(values: SimulatorFormValues): {
     dcReturnRate: dcReturnRate!,
     conversionType: values.conversionMethod,
     customTransferAmount,
+    ...(salaryPathConfig !== undefined ? { salaryPathConfig } : {}),
+    ...(dbAverageSalaryOverride !== undefined ? { dbAverageSalaryOverride } : {}),
   };
 
   return { errors: {}, input, volatility: dcVolatility! };

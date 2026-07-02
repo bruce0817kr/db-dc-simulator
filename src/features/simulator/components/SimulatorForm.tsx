@@ -5,6 +5,7 @@ import { Button } from "@/src/components/ui/Button";
 import { ConversionType } from "@/src/calculator/types";
 import { SampleScenarios } from "./SampleScenarios";
 import { PortfolioPresetSelect } from "./PortfolioPresetSelect";
+import { AdvancedSalarySection } from "./AdvancedSalarySection";
 
 interface SimulatorFormProps {
   values: SimulatorFormValues;
@@ -120,6 +121,13 @@ export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSel
           placeholder="0"
         />
       )}
+
+      <AdvancedSalarySection
+        values={values}
+        errors={errors}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
 
       <Button variant="secondary" onClick={onReset} type="button">
         초기화

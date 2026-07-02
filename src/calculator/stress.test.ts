@@ -93,3 +93,18 @@ describe("buildStressScenarios", () => {
     }
   });
 });
+
+describe("buildStressScenarios + salaryPathConfig", () => {
+  it("WAGE_PEAK base로 buildStressScenarios 호출 — dropRate=0이면 stressedDc > 0이고 dropRate 필드 정상", () => {
+    const wagePeakInput: SimulationInput = {
+      ...BASE_INPUT,
+      salaryPathConfig: {
+        mode: "WAGE_PEAK",
+        wagePeak: { peakStartYear: 5, cutRate: 0.2, postPeakGrowthRate: 0.01 },
+      },
+    };
+    const scenarios = buildStressScenarios(wagePeakInput, 0.7, [0]);
+    expect(scenarios[0].stressedDcAmount).toBeGreaterThan(0);
+    expect(scenarios[0].dropRate).toBe(0);
+  });
+});

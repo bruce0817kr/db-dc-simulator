@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { runMonteCarlo, MonteCarloInput } from "./monte-carlo";
 import { calculateDcAmount } from "./dc";
 import { SimulationInput } from "./types";
+import { simulate } from "./simulate";
 
 const BASE_INPUT: SimulationInput = {
   currentSalary: 80_000_000,
@@ -127,5 +128,26 @@ describe("iterations 차이", () => {
     const a = runMonteCarlo({ ...BASE_MC, iterations: 1000 });
     const b = runMonteCarlo({ ...BASE_MC, iterations: 1000 });
     expect(a.p50).toBe(b.p50);
+  });
+});
+
+describe("runMonteCarlo + salaryPathConfig", () => {
+  it("σ=0 + WAGE_PEAK: p50이 simulate dcAmount와 toBeCloseTo(4자리)", () => {
+    const wagePeakInput: SimulationInput = {
+      ...BASE_INPUT,
+      salaryPathConfig: {
+        mode: "WAGE_PEAK",
+        wagePeak: { peakStartYear: 5, cutRate: 0.2, postPeakGrowthRate: 0.01 },
+      },
+    };
+    const mc = runMonteCarlo({
+      baseInput: wagePeakInput,
+      expectedReturnRate: BASE_INPUT.dcReturnRate,
+      volatility: 0,
+      iterations: 1000,
+      seed: 20260702,
+    });
+    const simResult = simulate(wagePeakInput);
+    expect(mc.p50).toBeCloseTo(simResult.dcAmount, 4);
   });
 });

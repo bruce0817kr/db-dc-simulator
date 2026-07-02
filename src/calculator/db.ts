@@ -4,9 +4,12 @@ export function calculateDbAmount(
   currentSalary: number,
   wageGrowthRate: number,
   currentServiceYears: number,
-  remainingServiceYears: number
+  remainingServiceYears: number,
+  finalYearSalary?: number
 ): number {
-  const fs = finalSalary(currentSalary, wageGrowthRate, remainingServiceYears);
+  const fs = finalYearSalary !== undefined
+    ? finalYearSalary
+    : finalSalary(currentSalary, wageGrowthRate, remainingServiceYears);
   return (fs / 12) * (currentServiceYears + remainingServiceYears);
 }
 

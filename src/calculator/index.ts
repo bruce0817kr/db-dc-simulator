@@ -1,3 +1,5 @@
+export type { SalaryPathMode, SalaryPathConfig } from "./salary-path";
+export { buildSalaryPath } from "./salary-path";
 export type { ConversionType, SimulationInput, SimulationResult } from "./types";
 export { salaryAtYear, finalSalary } from "./salary";
 export { calculateDbAmount, calculateCurrentDbSettlement } from "./db";

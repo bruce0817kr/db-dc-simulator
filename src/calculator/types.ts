@@ -1,3 +1,5 @@
+import { SalaryPathConfig } from "./salary-path";
+
 export type ConversionType = "TRANSFER_ALL_TO_DC" | "CUSTOM_TRANSFER_AMOUNT";
 
 export interface SimulationInput {
@@ -8,6 +10,8 @@ export interface SimulationInput {
   dcReturnRate: number;
   conversionType: ConversionType;
   customTransferAmount?: number;
+  salaryPathConfig?: SalaryPathConfig;
+  dbAverageSalaryOverride?: number;
 }
 
 export interface SimulationResult {

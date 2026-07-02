@@ -83,6 +83,25 @@ describe("buildSensitivityMatrix", () => {
   });
 });
 
+describe("buildSensitivityMatrix + salaryPathConfig", () => {
+  it("WAGE_PEAK base: 임의 셀이 같은 g로 simulate한 결과와 일치", () => {
+    const wagePeakBase: SimulationInput = {
+      ...BASE_TRANSFER_ALL,
+      salaryPathConfig: {
+        mode: "WAGE_PEAK",
+        wagePeak: { peakStartYear: 5, cutRate: 0.15, postPeakGrowthRate: 0.01 },
+      },
+    };
+    const g = 0.02;
+    const r = 0.04;
+    const m = buildSensitivityMatrix(wagePeakBase, [g], [r]);
+    const pt = m.points[0];
+    const simResult = simulate({ ...wagePeakBase, wageGrowthRate: g, dcReturnRate: r });
+    expect(pt.dbExpectedAmount).toBeCloseTo(simResult.dbAmount, 0);
+    expect(pt.dcExpectedAmount).toBeCloseTo(simResult.dcAmount, 0);
+  });
+});
+
 describe("buildBreakevenByGrowthRate", () => {
   it("각 비-null r*에서 calculateDcAmount와 DB의 상대오차 < 1e-4", () => {
     const rows = buildBreakevenByGrowthRate(BASE_TRANSFER_ALL);
@@ -110,5 +129,25 @@ describe("buildBreakevenByGrowthRate", () => {
         expect(rCustom).toBeGreaterThan(rAll);
       }
     }
+  });
+});
+
+describe("buildBreakevenByGrowthRate + dbAverageSalaryOverride 정합성", () => {
+  it("override base: 임의 행의 r*를 같은 g의 DC에 대입 → dbExpectedAmount와 상대오차 < 1e-4", () => {
+    const overrideBase: SimulationInput = {
+      ...BASE_TRANSFER_ALL,
+      dbAverageSalaryOverride: 90_000_000,
+    };
+    const rows = buildBreakevenByGrowthRate(overrideBase);
+    const row = rows[2];
+    expect(row.breakevenReturnRate).not.toBeNull();
+    const dc = calculateDcAmount(
+      overrideBase.currentSalary,
+      row.salaryGrowthRate,
+      overrideBase.currentServiceYears,
+      overrideBase.remainingServiceYears,
+      row.breakevenReturnRate!
+    );
+    expect(Math.abs(dc - row.dbExpectedAmount) / row.dbExpectedAmount).toBeLessThan(1e-4);
   });
 });

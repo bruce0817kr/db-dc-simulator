@@ -3,6 +3,7 @@ import { calculateCurrentDbSettlement, calculateDbAmount } from "./db";
 import { DEFAULT_RULE_SET } from "./rules";
 import { salaryAtYear } from "./salary";
 import { createNormalSampler } from "./random";
+import { buildSalaryPath } from "./salary-path";
 
 export interface MonteCarloInput {
   baseInput: SimulationInput;
@@ -33,14 +34,32 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
     wageGrowthRate,
     conversionType,
     customTransferAmount,
+    salaryPathConfig,
+    dbAverageSalaryOverride,
   } = baseInput;
 
-  const dbAmount = calculateDbAmount(
-    currentSalary,
-    wageGrowthRate,
-    currentServiceYears,
-    remainingServiceYears
-  );
+  const n = remainingServiceYears;
+
+  const salaryPath = salaryPathConfig !== undefined && n > 0
+    ? buildSalaryPath(currentSalary, wageGrowthRate, n, salaryPathConfig)
+    : undefined;
+
+  const finalYearSalary = salaryPath !== undefined && salaryPath.length > 0
+    ? salaryPath[n - 1]
+    : undefined;
+
+  let dbAmount: number;
+  if (dbAverageSalaryOverride !== undefined) {
+    dbAmount = (dbAverageSalaryOverride / 12) * (currentServiceYears + n);
+  } else {
+    dbAmount = calculateDbAmount(
+      currentSalary,
+      wageGrowthRate,
+      currentServiceYears,
+      n,
+      finalYearSalary
+    );
+  }
 
   const initialBalance =
     conversionType === "CUSTOM_TRANSFER_AMOUNT" && customTransferAmount !== undefined
@@ -54,10 +73,13 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
 
   for (let i = 0; i < iterations; i++) {
     let balance = initialBalance;
-    for (let t = 1; t <= remainingServiceYears; t++) {
+    for (let t = 1; t <= n; t++) {
       const z = sampleNormal();
       const multiplier = Math.exp(logMu + sigma * z);
-      const contribution = salaryAtYear(currentSalary, wageGrowthRate, t) * DEFAULT_RULE_SET.dcContributionRate;
+      const salary = salaryPath !== undefined
+        ? salaryPath[t - 1]
+        : salaryAtYear(currentSalary, wageGrowthRate, t);
+      const contribution = salary * DEFAULT_RULE_SET.dcContributionRate;
       balance = balance * multiplier + contribution;
     }
     results[i] = balance;
@@ -65,9 +87,9 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
 
   results.sort((a, b) => a - b);
 
-  const n = iterations;
+  const numResults = iterations;
   function percentile(q: number): number {
-    return results[Math.floor(q * (n - 1))];
+    return results[Math.floor(q * (numResults - 1))];
   }
 
   const p5 = percentile(0.05);
@@ -77,7 +99,7 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
   const p95 = percentile(0.95);
 
   let dcBeatsDb = 0;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < numResults; i++) {
     if (results[i] > dbAmount) dcBeatsDb++;
   }
 
@@ -88,8 +110,8 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
     p50,
     p75,
     p95,
-    probabilityDcBeatsDb: dcBeatsDb / n,
+    probabilityDcBeatsDb: dcBeatsDb / numResults,
     worstCase: results[0],
-    bestCase: results[n - 1],
+    bestCase: results[numResults - 1],
   };
 }

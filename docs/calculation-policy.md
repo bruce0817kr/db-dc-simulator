@@ -138,6 +138,44 @@ probabilityDcBeatsDb = (dc > db인 iteration 수) / 전체 iteration 수
 
 직접 입력 방식은 포트폴리오 구성 정보가 없으므로 전액 위험자산으로 간주하여 최대 충격을 표시한다.
 
+## 고급 임금 시나리오 (SalaryPath)
+
+### 4가지 모드
+
+| 모드 | 수식 | 설명 |
+|------|------|------|
+| `CONSTANT_GROWTH` | path[t-1] = S₀ × (1+g)^t | 기본값. config 미전달 시 동일 동작 보장 |
+| `WAGE_PEAK` | t < peakStart: S₀×(1+g)^t / t = peakStart: prev×(1−cutRate) / t > peakStart: peakSalary×(1+postRate)^(t−peakStart) | 1회 감액 후 저성장 모델 |
+| `STEP_UP` | path[t-1] = S₀×(1+g)^t × ∏(1+extraRate_i) for all i where yearIndex_i ≤ t | 복수 임시 인상, 누적 유지 |
+| `YEARLY_CUSTOM` | path[t-1] = yearlySalaries[t-1] | 직접 입력. 길이 ≠ n이면 throw |
+
+### WAGE_PEAK 1회 감액+저성장 모델 상세
+
+peakStartYear 시점에 직전 연봉(t=1이 피크면 S₀) × (1 − cutRate)로 1회 감액하고, 이후 postPeakGrowthRate로 매년 성장한다.
+
+```
+t < peakStartYear  : S₀ × (1+g)^t
+t = peakStartYear  : S₀ × (1+g)^(t-1) × (1 - cutRate)   [t=1이면 S₀ × (1-cutRate)]
+t > peakStartYear  : peakSalary × (1 + postPeakGrowthRate)^(t - peakStartYear)
+```
+
+### 민감도 분석 g축 상호작용
+
+`buildSensitivityMatrix` / `buildBreakevenByGrowthRate`에서 `salaryPathConfig`가 있으면 **각 g값마다** `buildSalaryPath(S₀, g, n, config)`를 재생성한다. 즉 g축은 베이스 성장률로만 추종하며, WAGE_PEAK·STEP_UP의 구조(peakStartYear, cutRate 등)는 고정된 채로 g만 달라진다.
+
+### override 우선순위
+
+| 항목 | 우선순위 |
+|------|---------|
+| DB 금액 | `dbAverageSalaryOverride` > `salaryPath[n-1]` > 기본 finalSalary(S₀×(1+g)^n) |
+| DC 기여금 | `salaryPath[t-1]` > 기본 S₀×(1+g)^t (`dbAverageSalaryOverride`는 DC에 무관) |
+
+`dbAverageSalaryOverride` 적용 시: `dbAmount = override / 12 × (y₀ + n)`
+
+### g = r TIE 성질이 경로 비대칭에서 깨지는 것이 정상
+
+기본 CONSTANT_GROWTH 경로에서는 g = r이면 DC = DB가 수학적으로 성립한다 (g = r 증명 참조). 그러나 WAGE_PEAK·STEP_UP 등 비선형 경로에서는 DC 기여금 경로와 DB 최종급여 기준이 달라지므로 g = r이어도 DC ≠ DB가 될 수 있다. 이는 버그가 아니라 경로 비대칭의 정상적인 결과이다.
+
 ## MVP 제외 항목
 
 다음 항목은 MVP 범위에서 제외되며 향후 버전에서 구현 예정이다.

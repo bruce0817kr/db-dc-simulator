@@ -304,4 +304,81 @@ describe("SimulatorPage", () => {
       screen.getByText((text) => text.includes("쇼크는 퇴직 직전 1회 발생을 가정한 단순화 모델입니다"))
     ).toBeTruthy();
   });
+
+  it("(adv-a) details 기본 접힘 상태로 summary 렌더", () => {
+    render(<SimulatorPage />);
+    const summary = screen.getByText("고급 임금 시나리오");
+    expect(summary).toBeTruthy();
+    const details = summary.closest("details");
+    expect(details).toBeTruthy();
+    expect((details as HTMLDetailsElement).open).toBe(false);
+  });
+
+  it("(adv-b) 임금피크제 모드 선택 + 피크 3년차·감액 20% 입력 → DB 예상액 감소 + 적용 중 뱃지", () => {
+    render(<SimulatorPage />);
+
+    const defaultDbCards = screen.getAllByText((text) => text.includes("만 원") || text.includes("억 원"));
+    const defaultDbCard = defaultDbCards.find((el) =>
+      el.closest("[class]")
+        ?.previousElementSibling
+        ?.textContent?.includes("DB 유지 예상액")
+    );
+    const defaultDbText = defaultDbCard?.textContent ?? "";
+
+    const modeSelect = screen.getByLabelText("임금 경로 모드");
+    fireEvent.change(modeSelect, { target: { value: "WAGE_PEAK" } });
+
+    fireEvent.change(screen.getByLabelText("피크 시작 연차"), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("감액률"), { target: { value: "20" } });
+    fireEvent.change(screen.getByLabelText("피크 이후 상승률"), { target: { value: "0" } });
+
+    expect(screen.getByText("고급 임금 시나리오 적용 중")).toBeTruthy();
+
+    const dbLabel = screen.getByText("DB 유지 예상액");
+    const dbCard = dbLabel.closest("div");
+    const newDbText = dbCard?.querySelector("p.text-xl")?.textContent ?? "";
+    expect(newDbText).not.toBe("");
+    expect(newDbText).not.toBe(defaultDbText);
+  });
+
+  it("(adv-c) 피크 연차 '16' (남은 근속 15 초과) → 에러 메시지", () => {
+    render(<SimulatorPage />);
+
+    const summary = screen.getByText("고급 임금 시나리오");
+    const details = summary.closest("details") as HTMLDetailsElement;
+    details.open = true;
+
+    const modeSelect = screen.getByLabelText("임금 경로 모드");
+    fireEvent.change(modeSelect, { target: { value: "WAGE_PEAK" } });
+
+    const peakStartInput = screen.getByLabelText("피크 시작 연차");
+    fireEvent.change(peakStartInput, { target: { value: "16" } });
+
+    expect(
+      screen.getByText("피크 시작 연차는 1년차부터 남은 근속연수 이내의 정수로 입력해주세요.")
+    ).toBeTruthy();
+  });
+
+  it("(adv-d) 평균임금 9,000,000 입력 → DB 카드 '1,875만 원' 표기", () => {
+    render(<SimulatorPage />);
+
+    const summary = screen.getByText("고급 임금 시나리오");
+    const details = summary.closest("details") as HTMLDetailsElement;
+    details.open = true;
+
+    const dbAvgInput = screen.getByLabelText("평균임금 직접 입력 (선택)");
+    fireEvent.change(dbAvgInput, { target: { value: "9000000" } });
+
+    expect(
+      screen.getAllByText((text) => text.includes("1,875만 원")).length
+    ).toBeGreaterThan(0);
+  });
+
+  it("(adv-e) 기본 모드 + 빈 고급 필드 → 뱃지 미렌더, 결과 동일", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.queryByText("고급 임금 시나리오 적용 중")).toBeNull();
+    expect(screen.getByText("DB 유지 예상액")).toBeTruthy();
+    expect(screen.getByText("DC 전환 예상액")).toBeTruthy();
+  });
 });
