@@ -7,6 +7,7 @@ export function validateForm(values: SimulatorFormValues): {
   errors: FieldErrors;
   input: SimulationInput | null;
   volatility: number | null;
+  inflationRate: number | null;
 } {
   const errors: FieldErrors = {};
 
@@ -112,8 +113,16 @@ export function validateForm(values: SimulatorFormValues): {
     }
   }
 
+  let inflationRate: number | null = null;
+  if (values.showPresentValue) {
+    inflationRate = parsePercentInput(values.inflationRate);
+    if (inflationRate === null || inflationRate < 0 || inflationRate > 0.1) {
+      errors.inflationRate = "물가상승률은 0%에서 10% 사이로 입력해주세요.";
+    }
+  }
+
   if (Object.keys(errors).length > 0) {
-    return { errors, input: null, volatility: null };
+    return { errors, input: null, volatility: null, inflationRate: null };
   }
 
   let salaryPathConfig: SalaryPathConfig | undefined = undefined;
@@ -150,5 +159,5 @@ export function validateForm(values: SimulatorFormValues): {
     ...(dbAverageSalaryOverride !== undefined ? { dbAverageSalaryOverride } : {}),
   };
 
-  return { errors: {}, input, volatility: dcVolatility! };
+  return { errors: {}, input, volatility: dcVolatility!, inflationRate };
 }

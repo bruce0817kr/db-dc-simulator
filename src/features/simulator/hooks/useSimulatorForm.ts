@@ -24,6 +24,9 @@ const DEFAULT_FORM_VALUES: SimulatorFormValues = {
   stepUpYear: "",
   stepUpRate: "",
   dbAverageSalary: "",
+  showAfterTax: false,
+  showPresentValue: false,
+  inflationRate: "2",
 };
 
 const KRW_FIELDS: Array<keyof SimulatorFormValues> = [
@@ -49,7 +52,7 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     ...initialValues,
   });
 
-  const { errors, input, volatility } = useMemo(() => validateForm(values), [values]);
+  const { errors, input, volatility, inflationRate } = useMemo(() => validateForm(values), [values]);
 
   const result = useMemo<SimulationResult | null>(() => {
     if (!input) return null;
@@ -74,6 +77,10 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
         return prev;
       });
     }
+  }
+
+  function onToggleDisplay(field: "showAfterTax" | "showPresentValue") {
+    setValues((prev) => ({ ...prev, [field]: !prev[field] }));
   }
 
   function onReset() {
@@ -101,5 +108,5 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     return preset ? preset.riskyAssetWeight : 1.0;
   }, [values.portfolioPresetId]);
 
-  return { values, errors, input, result, volatility, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset };
+  return { values, errors, input, result, volatility, inflationRate, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset, onToggleDisplay };
 }

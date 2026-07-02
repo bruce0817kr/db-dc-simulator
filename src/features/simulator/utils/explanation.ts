@@ -1,5 +1,6 @@
 import { SimulationInput, SimulationResult } from "@/src/calculator/types";
 import { formatPercent, formatDifference } from "./formatters";
+import { DisplayAmounts } from "./displayAmounts";
 
 export interface ExplanationText {
   breakevenSentence: string;
@@ -8,7 +9,8 @@ export interface ExplanationText {
 
 export function buildExplanation(
   input: SimulationInput,
-  result: SimulationResult
+  result: SimulationResult,
+  display?: DisplayAmounts
 ): ExplanationText {
   let breakevenSentence: string;
   if (result.breakevenReturnRate !== null) {
@@ -17,7 +19,9 @@ export function buildExplanation(
     breakevenSentence = "입력하신 조건에서는 손익분기 수익률을 계산할 수 없습니다.";
   }
 
-  const { winner, amountText } = formatDifference(result.difference, result.dbAmount);
+  const effectiveDifference = display !== undefined ? display.difference : result.difference;
+  const effectiveDb = display !== undefined ? display.db : result.dbAmount;
+  const { winner, amountText } = formatDifference(effectiveDifference, effectiveDb);
   let comparisonSentence: string;
   if (winner === "DC") {
     comparisonSentence = `현재 입력한 DC 운용수익률 ${formatPercent(input.dcReturnRate)} 기준으로는 DC가 약 ${amountText} 유리합니다.`;

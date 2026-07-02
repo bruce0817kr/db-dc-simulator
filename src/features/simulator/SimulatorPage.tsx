@@ -16,7 +16,7 @@ export function SimulatorPage() {
   const [initialValues] = useState(() =>
     typeof window === "undefined" ? {} : parseSearchToFormValues(window.location.search)
   );
-  const { values, errors, input, result, volatility, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
+  const { values, errors, input, result, volatility, inflationRate, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset, onToggleDisplay } =
     useSimulatorForm(initialValues);
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -37,7 +37,16 @@ export function SimulatorPage() {
           />
         </div>
         <div>
-          <ResultPanel result={result} input={input} hasErrors={hasErrors} />
+          <ResultPanel
+            result={result}
+            input={input}
+            hasErrors={hasErrors}
+            values={values}
+            errors={errors}
+            inflationRate={inflationRate}
+            onToggleDisplay={onToggleDisplay}
+            onChange={onChange}
+          />
           {input && <SensitivitySection input={input} />}
           {input && result && volatility !== null && (
             <RiskSection input={input} volatility={volatility} dbAmount={result.dbAmount} />

@@ -19,6 +19,9 @@ const valid: SimulatorFormValues = {
   stepUpYear: "",
   stepUpRate: "",
   dbAverageSalary: "",
+  showAfterTax: false,
+  showPresentValue: false,
+  inflationRate: "2",
 };
 
 describe("validateForm", () => {
@@ -180,6 +183,45 @@ const advValid: SimulatorFormValues = {
   stepUpRate: "",
   dbAverageSalary: "",
 };
+
+describe("validateForm — inflationRate 조건부 검증", () => {
+  it("showPresentValue false → inflationRate 미검증, null 반환", () => {
+    const { errors, inflationRate } = validateForm({ ...valid, showPresentValue: false, inflationRate: "11" });
+    expect(errors.inflationRate).toBeUndefined();
+    expect(inflationRate).toBeNull();
+  });
+
+  it("showPresentValue true + 유효값 '2' → errors 없음, inflationRate 0.02", () => {
+    const { errors, inflationRate } = validateForm({ ...valid, showPresentValue: true, inflationRate: "2" });
+    expect(errors.inflationRate).toBeUndefined();
+    expect(inflationRate).toBeCloseTo(0.02);
+  });
+
+  it("showPresentValue true + '0' (경계) → valid", () => {
+    const { errors } = validateForm({ ...valid, showPresentValue: true, inflationRate: "0" });
+    expect(errors.inflationRate).toBeUndefined();
+  });
+
+  it("showPresentValue true + '10' (경계) → valid", () => {
+    const { errors } = validateForm({ ...valid, showPresentValue: true, inflationRate: "10" });
+    expect(errors.inflationRate).toBeUndefined();
+  });
+
+  it("showPresentValue true + '11' → 에러", () => {
+    const { errors } = validateForm({ ...valid, showPresentValue: true, inflationRate: "11" });
+    expect(errors.inflationRate).toBe("물가상승률은 0%에서 10% 사이로 입력해주세요.");
+  });
+
+  it("showPresentValue true + '-1' → 에러", () => {
+    const { errors } = validateForm({ ...valid, showPresentValue: true, inflationRate: "-1" });
+    expect(errors.inflationRate).toBe("물가상승률은 0%에서 10% 사이로 입력해주세요.");
+  });
+
+  it("showPresentValue true + 빈값 → 에러", () => {
+    const { errors } = validateForm({ ...valid, showPresentValue: true, inflationRate: "" });
+    expect(errors.inflationRate).toBe("물가상승률은 0%에서 10% 사이로 입력해주세요.");
+  });
+});
 
 describe("validateForm — advanced salary fields", () => {
   it("CONSTANT_GROWTH + 빈 고급 필드 → input valid, salaryPathConfig undefined", () => {

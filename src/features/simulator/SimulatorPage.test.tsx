@@ -381,4 +381,73 @@ describe("SimulatorPage", () => {
     expect(screen.getByText("DB 유지 예상액")).toBeTruthy();
     expect(screen.getByText("DC 전환 예상액")).toBeTruthy();
   });
+
+  it("(tax-a) 세후 체크 → DB/DC 카드에 '(세후)' 라벨 + 실효세율 보조줄 존재 + 값 변경", () => {
+    render(<SimulatorPage />);
+
+    const dcCardBefore = screen.getByText("DC 전환 예상액").closest("div")!;
+    const dcValueBefore = dcCardBefore.querySelector("p.text-xl")!.textContent ?? "";
+
+    const afterTaxCheckbox = screen.getByRole("checkbox", { name: "세후 금액 보기" });
+    fireEvent.click(afterTaxCheckbox);
+
+    expect(screen.getAllByText((t) => t.includes("(세후)")).length).toBeGreaterThan(0);
+
+    expect(
+      screen.getAllByText((t) => t.includes("실효세율")).length
+    ).toBeGreaterThan(0);
+
+    const dcCardAfter = screen.getByText(/DC 전환 예상액/).closest("div")!;
+    const dcValueAfter = dcCardAfter.querySelector("p.text-xl")!.textContent ?? "";
+    expect(dcValueAfter).not.toBe(dcValueBefore);
+  });
+
+  it("(tax-b) 현재가치 체크 → 물가상승률 입력 노출 + DC 값 감소", () => {
+    render(<SimulatorPage />);
+
+    const dcCardBefore = screen.getByText("DC 전환 예상액").closest("div")!;
+    const dcValueBefore = dcCardBefore.querySelector("p.text-xl")!.textContent ?? "";
+
+    expect(screen.queryByLabelText("물가상승률 (%)")).toBeNull();
+
+    const pvCheckbox = screen.getByRole("checkbox", { name: "현재가치로 보기" });
+    fireEvent.click(pvCheckbox);
+
+    expect(screen.getByLabelText("물가상승률 (%)")).toBeTruthy();
+
+    const dcCardAfter = screen.getByText(/DC 전환 예상액/).closest("div")!;
+    const dcValueAfter = dcCardAfter.querySelector("p.text-xl")!.textContent ?? "";
+    expect(dcValueAfter).not.toBe(dcValueBefore);
+  });
+
+  it("(tax-c) 물가상승률 '11' 입력 → 에러 메시지", () => {
+    render(<SimulatorPage />);
+
+    const pvCheckbox = screen.getByRole("checkbox", { name: "현재가치로 보기" });
+    fireEvent.click(pvCheckbox);
+
+    const inflInput = screen.getByLabelText("물가상승률 (%)");
+    fireEvent.change(inflInput, { target: { value: "11" } });
+
+    expect(
+      screen.getByText("물가상승률은 0%에서 10% 사이로 입력해주세요.")
+    ).toBeTruthy();
+  });
+
+  it("(tax-d) 손익분기 카드 '(세전 기준)' 상시 표기", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.getAllByText((t) => t.includes("세전 기준")).length).toBeGreaterThan(0);
+  });
+
+  it("(tax-e) 세후 체크 시 세법 고지 문구 렌더", () => {
+    render(<SimulatorPage />);
+
+    const afterTaxCheckbox = screen.getByRole("checkbox", { name: "세후 금액 보기" });
+    fireEvent.click(afterTaxCheckbox);
+
+    expect(
+      screen.getByText((t) => t.includes("세법 기준 단순 추정치입니다"))
+    ).toBeTruthy();
+  });
 });

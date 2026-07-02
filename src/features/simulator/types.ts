@@ -19,6 +19,9 @@ export interface SimulatorFormValues {
   stepUpYear: string;
   stepUpRate: string;
   dbAverageSalary: string;
+  showAfterTax: boolean;
+  showPresentValue: boolean;
+  inflationRate: string;
 }
 
 export type FieldErrors = Partial<Record<keyof SimulatorFormValues, string>>;

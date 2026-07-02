@@ -23,3 +23,6 @@ export { runMonteCarlo } from "./monte-carlo";
 export { mulberry32, createNormalSampler } from "./random";
 export type { StressScenario } from "./stress";
 export { DEFAULT_STRESS_DROP_RATES, buildStressScenarios } from "./stress";
+export type { RetirementTaxEstimate } from "./tax";
+export { estimateRetirementIncomeTax } from "./tax";
+export { toPresentValue } from "./present-value";

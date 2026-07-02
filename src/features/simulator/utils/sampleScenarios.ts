@@ -27,6 +27,9 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       stepUpYear: "",
       stepUpRate: "",
       dbAverageSalary: "",
+      showAfterTax: false,
+      showPresentValue: false,
+      inflationRate: "2",
     },
   },
   {
@@ -49,6 +52,9 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       stepUpYear: "",
       stepUpRate: "",
       dbAverageSalary: "",
+      showAfterTax: false,
+      showPresentValue: false,
+      inflationRate: "2",
     },
   },
   {
@@ -71,6 +77,9 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       stepUpYear: "",
       stepUpRate: "",
       dbAverageSalary: "",
+      showAfterTax: false,
+      showPresentValue: false,
+      inflationRate: "2",
     },
   },
 ];

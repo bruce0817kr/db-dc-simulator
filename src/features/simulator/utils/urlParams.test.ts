@@ -20,6 +20,9 @@ const BASE_VALUES: SimulatorFormValues = {
   stepUpYear: "",
   stepUpRate: "",
   dbAverageSalary: "",
+  showAfterTax: false,
+  showPresentValue: false,
+  inflationRate: "2",
 };
 
 describe("buildShareUrl / parseSearchToFormValues 왕복", () => {

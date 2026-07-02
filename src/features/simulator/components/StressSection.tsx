@@ -31,7 +31,7 @@ export function StressSection({ input, result, riskyAssetWeight, isCustomWeight 
   return (
     <section className="mt-8 space-y-4">
       <h2 className="text-lg font-bold text-gray-900">
-        퇴직 직전 시장이 하락한다면? (스트레스 테스트)
+        퇴직 직전 시장이 하락한다면? (스트레스 테스트) <span className="text-sm font-normal text-gray-400">(세전 기준)</span>
       </h2>
 
       <p className="text-xs text-gray-500">{assumptionText}</p>

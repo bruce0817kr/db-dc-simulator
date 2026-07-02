@@ -29,7 +29,7 @@ export function RiskSection({ input, volatility, dbAmount }: RiskSectionProps) {
   return (
     <section className="mt-8 space-y-4">
       <h2 className="text-lg font-bold text-gray-900">
-        운용 성과가 흔들린다면? (리스크 시뮬레이션)
+        운용 성과가 흔들린다면? (리스크 시뮬레이션) <span className="text-sm font-normal text-gray-400">(세전 기준)</span>
       </h2>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

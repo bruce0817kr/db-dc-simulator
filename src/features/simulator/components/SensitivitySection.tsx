@@ -21,7 +21,7 @@ export function SensitivitySection({ input }: SensitivitySectionProps) {
 
   return (
     <section className="mt-8 space-y-6">
-      <h2 className="text-lg font-bold text-gray-900">가정이 달라지면?</h2>
+      <h2 className="text-lg font-bold text-gray-900">가정이 달라지면? <span className="text-sm font-normal text-gray-400">(세전 기준)</span></h2>
 
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-gray-700">수익률별 결과 (현재 임금상승률 기준)</h3>
