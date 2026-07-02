@@ -18,6 +18,7 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       dcReturnRate: "5",
       conversionMethod: "TRANSFER_ALL_TO_DC",
       customTransferAmount: "",
+      portfolioPresetId: "CUSTOM",
     },
   },
   {
@@ -31,6 +32,7 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       dcReturnRate: "5",
       conversionMethod: "TRANSFER_ALL_TO_DC",
       customTransferAmount: "",
+      portfolioPresetId: "CUSTOM",
     },
   },
   {
@@ -44,6 +46,7 @@ export const SAMPLE_SCENARIOS: SampleScenario[] = [
       dcReturnRate: "4",
       conversionMethod: "TRANSFER_ALL_TO_DC",
       customTransferAmount: "",
+      portfolioPresetId: "CUSTOM",
     },
   },
 ];

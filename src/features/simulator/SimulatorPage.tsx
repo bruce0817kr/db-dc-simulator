@@ -14,7 +14,7 @@ export function SimulatorPage() {
   const [initialValues] = useState(() =>
     typeof window === "undefined" ? {} : parseSearchToFormValues(window.location.search)
   );
-  const { values, errors, input, result, onChange, onBlur, onReset, applyScenario } =
+  const { values, errors, input, result, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
     useSimulatorForm(initialValues);
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -30,6 +30,8 @@ export function SimulatorPage() {
             onBlur={onBlur}
             onReset={onReset}
             onSelectScenario={applyScenario}
+            presetId={values.portfolioPresetId}
+            onSelectPreset={onSelectPreset}
           />
         </div>
         <div>

@@ -12,3 +12,5 @@ export {
   buildSensitivityMatrix,
   buildBreakevenByGrowthRate,
 } from "./sensitivity";
+export type { PortfolioPreset } from "./portfolio";
+export { PORTFOLIO_PRESETS, netReturnRate } from "./portfolio";

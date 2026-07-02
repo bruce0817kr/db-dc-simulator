@@ -11,6 +11,7 @@ const BASE_VALUES: SimulatorFormValues = {
   dcReturnRate: "5",
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
+  portfolioPresetId: "CUSTOM",
 };
 
 describe("buildShareUrl / parseSearchToFormValues 왕복", () => {

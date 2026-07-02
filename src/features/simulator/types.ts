@@ -8,6 +8,7 @@ export interface SimulatorFormValues {
   dcReturnRate: string;
   conversionMethod: ConversionType;
   customTransferAmount: string;
+  portfolioPresetId: string;
 }
 
 export type FieldErrors = Partial<Record<keyof SimulatorFormValues, string>>;

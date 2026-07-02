@@ -168,4 +168,55 @@ describe("SimulatorPage", () => {
       Array.from(bodyCells).some((cell) => cell.textContent?.includes("만 원"))
     ).toBe(true);
   });
+
+  it("(preset-a) 프리셋 '안정형' 선택 → dcReturnRate input 값 '3.2' + 결과 카드 갱신", () => {
+    render(<SimulatorPage />);
+
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "stable" } });
+
+    const dcInput = screen.getByLabelText("DC 예상 운용수익률") as HTMLInputElement;
+    expect(dcInput.value).toBe("3.2");
+
+    expect(screen.getByText("손익분기 수익률")).toBeTruthy();
+  });
+
+  it("(preset-b) 안정형 선택 후 dcReturnRate '4' 수동 편집 → preset select 'CUSTOM' 복귀", () => {
+    render(<SimulatorPage />);
+
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋") as HTMLSelectElement;
+    fireEvent.change(presetSelect, { target: { value: "stable" } });
+
+    const dcInput = screen.getByLabelText("DC 예상 운용수익률");
+    fireEvent.change(dcInput, { target: { value: "4" } });
+
+    expect(presetSelect.value).toBe("CUSTOM");
+  });
+
+  it("(preset-c) 안정형 선택 시 '위험자산 30%' 텍스트 렌더", () => {
+    render(<SimulatorPage />);
+
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "stable" } });
+
+    expect(screen.getByText((text) => text.includes("위험자산 30%"))).toBeTruthy();
+  });
+
+  it("(preset-d) '가정치이며 예측이나 보장이 아닙니다' 문구 렌더", () => {
+    render(<SimulatorPage />);
+
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "stable" } });
+
+    expect(
+      screen.getByText((text) => text.includes("가정치이며 예측이나 보장이 아닙니다"))
+    ).toBeTruthy();
+  });
+
+  it("(preset-e) 문서 전체에 '추천'·'가입' 텍스트 부재", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.queryByText((text) => text.includes("추천"))).toBeNull();
+    expect(screen.queryByText((text) => text.includes("가입"))).toBeNull();
+  });
 });

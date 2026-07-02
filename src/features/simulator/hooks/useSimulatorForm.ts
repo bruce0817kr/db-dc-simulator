@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { simulate } from "@/src/calculator";
+import { simulate, PORTFOLIO_PRESETS, netReturnRate } from "@/src/calculator";
 import { SimulationResult } from "@/src/calculator/types";
 import { SimulatorFormValues } from "../types";
 import { validateForm } from "../utils/validation";
-import { parseKRWInput, formatKRW } from "../utils/formatters";
+import { parseKRWInput, formatKRW, formatPercent } from "../utils/formatters";
 
 const DEFAULT_FORM_VALUES: SimulatorFormValues = {
   currentSalary: "80,000,000",
@@ -15,6 +15,7 @@ const DEFAULT_FORM_VALUES: SimulatorFormValues = {
   dcReturnRate: "5",
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
+  portfolioPresetId: "CUSTOM",
 };
 
 const KRW_FIELDS: Array<keyof SimulatorFormValues> = [
@@ -26,6 +27,11 @@ function formatKRWField(raw: string): string {
   const n = parseKRWInput(raw);
   if (n === null) return raw;
   return formatKRW(n).replace("원", "").trim();
+}
+
+function presetToRateString(rate: number): string {
+  const s = formatPercent(rate, 1).replace("%", "");
+  return s.endsWith(".0") ? s.slice(0, -2) : s;
 }
 
 export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
@@ -43,7 +49,11 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
   }, [input]);
 
   function onChange(field: keyof SimulatorFormValues, value: string) {
-    setValues((prev) => ({ ...prev, [field]: value }));
+    if (field === "dcReturnRate" && values.portfolioPresetId !== "CUSTOM") {
+      setValues((prev) => ({ ...prev, [field]: value, portfolioPresetId: "CUSTOM" }));
+    } else {
+      setValues((prev) => ({ ...prev, [field]: value }));
+    }
   }
 
   function onBlur(field: keyof SimulatorFormValues) {
@@ -65,5 +75,16 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     setValues(vals);
   }
 
-  return { values, errors, input, result, onChange, onBlur, onReset, applyScenario };
+  function onSelectPreset(id: string) {
+    if (id === "CUSTOM") {
+      setValues((prev) => ({ ...prev, portfolioPresetId: "CUSTOM" }));
+      return;
+    }
+    const preset = PORTFOLIO_PRESETS.find((p) => p.id === id);
+    if (!preset) return;
+    const rateStr = presetToRateString(netReturnRate(preset));
+    setValues((prev) => ({ ...prev, portfolioPresetId: id, dcReturnRate: rateStr }));
+  }
+
+  return { values, errors, input, result, onChange, onBlur, onReset, applyScenario, onSelectPreset };
 }

@@ -4,6 +4,7 @@ import { Select } from "@/src/components/ui/Select";
 import { Button } from "@/src/components/ui/Button";
 import { ConversionType } from "@/src/calculator/types";
 import { SampleScenarios } from "./SampleScenarios";
+import { PortfolioPresetSelect } from "./PortfolioPresetSelect";
 
 interface SimulatorFormProps {
   values: SimulatorFormValues;
@@ -12,6 +13,8 @@ interface SimulatorFormProps {
   onBlur: (field: keyof SimulatorFormValues) => void;
   onReset: () => void;
   onSelectScenario: (values: SimulatorFormValues) => void;
+  presetId: string;
+  onSelectPreset: (id: string) => void;
 }
 
 const CONVERSION_OPTIONS: { value: ConversionType; label: string }[] = [
@@ -19,7 +22,7 @@ const CONVERSION_OPTIONS: { value: ConversionType; label: string }[] = [
   { value: "CUSTOM_TRANSFER_AMOUNT", label: "정산금 직접 입력" },
 ];
 
-export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSelectScenario }: SimulatorFormProps) {
+export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSelectScenario, presetId, onSelectPreset }: SimulatorFormProps) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-gray-800">입력 정보</h2>
@@ -70,6 +73,8 @@ export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSel
         suffix="%"
         placeholder="3"
       />
+
+      <PortfolioPresetSelect presetId={presetId} onSelectPreset={onSelectPreset} />
 
       <TextInput
         id="dcReturnRate"
