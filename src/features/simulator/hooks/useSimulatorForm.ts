@@ -28,8 +28,11 @@ function formatKRWField(raw: string): string {
   return formatKRW(n).replace("원", "").trim();
 }
 
-export function useSimulatorForm() {
-  const [values, setValues] = useState<SimulatorFormValues>(DEFAULT_FORM_VALUES);
+export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
+  const [values, setValues] = useState<SimulatorFormValues>({
+    ...DEFAULT_FORM_VALUES,
+    ...initialValues,
+  });
 
   const { errors, input } = useMemo(() => validateForm(values), [values]);
 
@@ -40,18 +43,27 @@ export function useSimulatorForm() {
   }, [input]);
 
   function onChange(field: keyof SimulatorFormValues, value: string) {
-    setValues((prev) => {
-      if (KRW_FIELDS.includes(field)) {
-        const formatted = formatKRWField(value);
-        return { ...prev, [field]: formatted !== value ? formatted : value };
-      }
-      return { ...prev, [field]: value };
-    });
+    setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function onBlur(field: keyof SimulatorFormValues) {
+    if (KRW_FIELDS.includes(field)) {
+      setValues((prev) => {
+        const raw = prev[field] as string;
+        const formatted = formatKRWField(raw);
+        if (formatted !== raw) return { ...prev, [field]: formatted };
+        return prev;
+      });
+    }
   }
 
   function onReset() {
     setValues(DEFAULT_FORM_VALUES);
   }
 
-  return { values, errors, input, result, onChange, onReset };
+  function applyScenario(vals: SimulatorFormValues) {
+    setValues(vals);
+  }
+
+  return { values, errors, input, result, onChange, onBlur, onReset, applyScenario };
 }

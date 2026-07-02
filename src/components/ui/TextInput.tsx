@@ -3,6 +3,7 @@ interface TextInputProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   error?: string;
   inputMode?: "text" | "numeric" | "decimal";
   suffix?: string;
@@ -14,6 +15,7 @@ export function TextInput({
   label,
   value,
   onChange,
+  onBlur,
   error,
   inputMode = "text",
   suffix,
@@ -31,6 +33,7 @@ export function TextInput({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           inputMode={inputMode}
           placeholder={placeholder}
           aria-invalid={error ? true : undefined}
