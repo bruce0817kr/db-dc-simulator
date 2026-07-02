@@ -8,13 +8,14 @@ import { ResultPanel } from "./components/ResultPanel";
 import { AssumptionNotice } from "./components/AssumptionNotice";
 import { ShareSection } from "./components/ShareSection";
 import { SensitivitySection } from "./components/SensitivitySection";
+import { RiskSection } from "./components/RiskSection";
 import { parseSearchToFormValues } from "./utils/urlParams";
 
 export function SimulatorPage() {
   const [initialValues] = useState(() =>
     typeof window === "undefined" ? {} : parseSearchToFormValues(window.location.search)
   );
-  const { values, errors, input, result, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
+  const { values, errors, input, result, volatility, onChange, onBlur, onReset, applyScenario, onSelectPreset } =
     useSimulatorForm(initialValues);
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -37,6 +38,9 @@ export function SimulatorPage() {
         <div>
           <ResultPanel result={result} input={input} hasErrors={hasErrors} />
           {input && <SensitivitySection input={input} />}
+          {input && result && volatility !== null && (
+            <RiskSection input={input} volatility={volatility} dbAmount={result.dbAmount} />
+          )}
           <ShareSection values={values} disabled={hasErrors} />
         </div>
       </div>

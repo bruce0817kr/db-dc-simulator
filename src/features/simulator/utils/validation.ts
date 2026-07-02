@@ -5,6 +5,7 @@ import { parseKRWInput, parsePercentInput } from "./formatters";
 export function validateForm(values: SimulatorFormValues): {
   errors: FieldErrors;
   input: SimulationInput | null;
+  volatility: number | null;
 } {
   const errors: FieldErrors = {};
 
@@ -51,8 +52,13 @@ export function validateForm(values: SimulatorFormValues): {
     }
   }
 
+  const dcVolatility = parsePercentInput(values.dcVolatility);
+  if (dcVolatility === null || dcVolatility < 0 || dcVolatility > 0.6) {
+    errors.dcVolatility = "연간 변동성은 0%에서 60% 사이로 입력해주세요.";
+  }
+
   if (Object.keys(errors).length > 0) {
-    return { errors, input: null };
+    return { errors, input: null, volatility: null };
   }
 
   const input: SimulationInput = {
@@ -65,5 +71,5 @@ export function validateForm(values: SimulatorFormValues): {
     customTransferAmount,
   };
 
-  return { errors: {}, input };
+  return { errors: {}, input, volatility: dcVolatility! };
 }

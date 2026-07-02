@@ -87,6 +87,17 @@ export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSel
         placeholder="5"
       />
 
+      <TextInput
+        id="dcVolatility"
+        label="연간 변동성"
+        value={values.dcVolatility}
+        onChange={(v) => onChange("dcVolatility", v)}
+        error={errors.dcVolatility}
+        inputMode="decimal"
+        suffix="%"
+        placeholder="12"
+      />
+
       <Select
         id="conversionMethod"
         label="전환 방식"

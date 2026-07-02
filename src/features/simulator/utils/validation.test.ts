@@ -8,6 +8,7 @@ const valid: SimulatorFormValues = {
   remainingYearsOfService: "15",
   salaryGrowthRate: "3",
   dcReturnRate: "5",
+  dcVolatility: "12",
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
   portfolioPresetId: "CUSTOM",

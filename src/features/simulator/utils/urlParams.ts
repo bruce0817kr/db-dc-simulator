@@ -17,6 +17,7 @@ export function buildShareUrl(values: SimulatorFormValues, origin: string): stri
   params.set("remainingYears", values.remainingYearsOfService);
   params.set("salaryGrowth", values.salaryGrowthRate);
   params.set("dcReturn", values.dcReturnRate);
+  params.set("volatility", values.dcVolatility);
   params.set("method", values.conversionMethod);
 
   if (values.conversionMethod === "CUSTOM_TRANSFER_AMOUNT") {
@@ -61,6 +62,12 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
   if (dcReturn !== null) {
     const n = Number(dcReturn);
     if (Number.isFinite(n)) result.dcReturnRate = dcReturn;
+  }
+
+  const volatility = params.get("volatility");
+  if (volatility !== null) {
+    const n = Number(volatility);
+    if (Number.isFinite(n)) result.dcVolatility = volatility;
   }
 
   const method = params.get("method");

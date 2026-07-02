@@ -9,6 +9,7 @@ const BASE_VALUES: SimulatorFormValues = {
   remainingYearsOfService: "15",
   salaryGrowthRate: "3",
   dcReturnRate: "5",
+  dcVolatility: "12",
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
   portfolioPresetId: "CUSTOM",
@@ -91,5 +92,28 @@ describe("buildShareUrl URL 구조", () => {
   it("salary는 콤마 없는 정수로 직렬화", () => {
     const url = buildShareUrl(BASE_VALUES, "https://example.com");
     expect(url).toContain("salary=80000000");
+  });
+});
+
+describe("volatility 왕복", () => {
+  it("dcVolatility '12' 직렬화 후 복원", () => {
+    const url = buildShareUrl(BASE_VALUES, "https://example.com");
+    expect(url).toContain("volatility=12");
+    const search = "?" + url.split("?")[1];
+    const parsed = parseSearchToFormValues(search);
+    expect(parsed.dcVolatility).toBe("12");
+  });
+
+  it("dcVolatility '20' 왕복", () => {
+    const values: SimulatorFormValues = { ...BASE_VALUES, dcVolatility: "20" };
+    const url = buildShareUrl(values, "https://example.com");
+    const search = "?" + url.split("?")[1];
+    const parsed = parseSearchToFormValues(search);
+    expect(parsed.dcVolatility).toBe("20");
+  });
+
+  it("volatility=abc → dcVolatility 제외", () => {
+    const parsed = parseSearchToFormValues("?volatility=abc");
+    expect(parsed.dcVolatility).toBeUndefined();
   });
 });

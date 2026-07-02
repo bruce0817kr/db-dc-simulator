@@ -238,4 +238,31 @@ describe("SimulatorPage", () => {
       )
     ).toBeNull();
   });
+
+  it("(risk-a) 변동성 필드 기본값 '12'", () => {
+    render(<SimulatorPage />);
+    const input = screen.getByLabelText("연간 변동성") as HTMLInputElement;
+    expect(input.value).toBe("12");
+  });
+
+  it("(risk-b) 리스크 h2·카드·고지 렌더", () => {
+    render(<SimulatorPage />);
+    expect(screen.getByText("운용 성과가 흔들린다면? (리스크 시뮬레이션)")).toBeTruthy();
+    expect(screen.getByText("DC가 DB보다 유리할 확률")).toBeTruthy();
+    expect(
+      screen.getByText((text) => text.includes("확정 예측이 아닙니다"))
+    ).toBeTruthy();
+  });
+
+  it("(risk-c) 변동성 '61' 입력 → 에러 메시지 + 리스크 섹션 미렌더", () => {
+    render(<SimulatorPage />);
+    const input = screen.getByLabelText("연간 변동성");
+    fireEvent.change(input, { target: { value: "61" } });
+    expect(
+      screen.getByText("연간 변동성은 0%에서 60% 사이로 입력해주세요.")
+    ).toBeTruthy();
+    expect(
+      screen.queryByText("운용 성과가 흔들린다면? (리스크 시뮬레이션)")
+    ).toBeNull();
+  });
 });

@@ -53,6 +53,70 @@ DC 합계: S₀(1+g)^n / 12 × (y₀ + n) = finalSalary / 12 × (y₀ + n) = DB
 | TRANSFER_ALL_TO_DC | 전환 시점 DB 정산금(S₀/12 × y₀)을 전액 DC로 이전한다. |
 | CUSTOM_TRANSFER_AMOUNT | 계산된 현재 DB 정산금을 회사 규약상 실제 정산금으로 대체하는 방식. 사용자가 입력한 `customTransferAmount` 값이 settlement 대신 사용된다. DB 유지 시나리오에는 영향 없음. |
 
+## 리스크 시뮬레이션 (몬테카를로)
+
+### 로그정규 수익률 모델
+
+연간 수익률 배수는 로그정규 분포를 따른다고 가정한다.
+
+```
+z ~ N(0, 1)
+logMu = ln(1 + μ) − σ²/2
+배수 = exp(logMu + σ × z)
+```
+
+여기서 μ는 기대수익률(DC 운용수익률), σ는 연간 변동성이다.
+
+**E[배수] = 1+μ 성질**: 로그정규 분포의 기댓값 공식에 의해
+
+```
+E[exp(logMu + σ×z)] = exp(logMu + σ²/2) = exp(ln(1+μ)) = 1+μ
+```
+
+이 성질은 기대수익률이 입력한 μ와 일치함을 보장한다.
+
+σ=0이면 z항이 소멸하여 배수 = exp(ln(1+μ)) = 1+μ 로 결정론적이다.
+
+### 경로 시뮬레이션
+
+iteration마다 다음 경로를 계산한다.
+
+```
+balance₀ = calculateCurrentDbSettlement(S₀, y₀)  // TRANSFER_ALL_TO_DC
+           또는 customTransferAmount               // CUSTOM_TRANSFER_AMOUNT
+
+for t = 1..n:
+  balance_t = balance_{t-1} × 배수_t + salaryAtYear(S₀, g, t) × dcContributionRate
+```
+
+### Percentile 계산 방식
+
+결과 배열을 오름차순 정렬 후 단순 인덱스로 분위값을 구한다.
+
+```
+index(q) = floor(q × (n − 1))
+percentile(q) = sortedResults[index(q)]
+```
+
+선형 보간을 적용하지 않는다.
+
+### 파라미터
+
+| 항목 | 값 |
+|------|-----|
+| 반복 횟수 | 1,000회 |
+| seed | 20260702 (고정 상수 리터럴) |
+| 기본 변동성 | 12% (가정치, 시장 예측이 아님) |
+| PRNG | mulberry32 (결정적, Math.random 미사용) |
+
+### DC 승률 정의
+
+```
+probabilityDcBeatsDb = (dc > db인 iteration 수) / 전체 iteration 수
+```
+
+엄격 부등호(dc > db)를 사용하며, 동률(dc === db)은 승률에 포함하지 않는다.
+
 ## MVP 제외 항목
 
 다음 항목은 MVP 범위에서 제외되며 향후 버전에서 구현 예정이다.
@@ -61,7 +125,6 @@ DC 합계: S₀(1+g)^n / 12 × (y₀ + n) = finalSalary / 12 × (y₀ + n) = DB
 - 임금피크제 (감액 구간 적용)
 - 상여금·성과급 (정기급여 외 항목)
 - ETF·펀드별 분산 투자 시뮬레이션
-- 몬테카를로 시뮬레이션 (확률적 수익률 분포)
 - 중도 전환 시나리오 (부분 전환, 시점 선택)
 
 ## 단위 규약

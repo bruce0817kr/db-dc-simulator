@@ -6,6 +6,7 @@ export interface SimulatorFormValues {
   remainingYearsOfService: string;
   salaryGrowthRate: string;
   dcReturnRate: string;
+  dcVolatility: string;
   conversionMethod: ConversionType;
   customTransferAmount: string;
   portfolioPresetId: string;

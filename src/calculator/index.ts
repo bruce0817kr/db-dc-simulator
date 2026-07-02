@@ -16,3 +16,6 @@ export type { PortfolioPreset } from "./portfolio";
 export { PORTFOLIO_PRESETS, netReturnRate } from "./portfolio";
 export type { PensionRuleSet } from "./rules";
 export { DEFAULT_RULE_SET, exceedsRiskyAssetLimit } from "./rules";
+export type { MonteCarloInput, MonteCarloResult } from "./monte-carlo";
+export { runMonteCarlo } from "./monte-carlo";
+export { mulberry32, createNormalSampler } from "./random";

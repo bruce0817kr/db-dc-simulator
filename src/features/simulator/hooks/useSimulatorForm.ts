@@ -13,6 +13,7 @@ const DEFAULT_FORM_VALUES: SimulatorFormValues = {
   remainingYearsOfService: "15",
   salaryGrowthRate: "3",
   dcReturnRate: "5",
+  dcVolatility: "12",
   conversionMethod: "TRANSFER_ALL_TO_DC",
   customTransferAmount: "",
   portfolioPresetId: "CUSTOM",
@@ -40,7 +41,7 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     ...initialValues,
   });
 
-  const { errors, input } = useMemo(() => validateForm(values), [values]);
+  const { errors, input, volatility } = useMemo(() => validateForm(values), [values]);
 
   const result = useMemo<SimulationResult | null>(() => {
     if (!input) return null;
@@ -86,5 +87,5 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     setValues((prev) => ({ ...prev, portfolioPresetId: id, dcReturnRate: rateStr }));
   }
 
-  return { values, errors, input, result, onChange, onBlur, onReset, applyScenario, onSelectPreset };
+  return { values, errors, input, result, volatility, onChange, onBlur, onReset, applyScenario, onSelectPreset };
 }
