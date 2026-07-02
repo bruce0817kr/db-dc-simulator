@@ -1,4 +1,4 @@
-import { PORTFOLIO_PRESETS, netReturnRate } from "@/src/calculator";
+import { PORTFOLIO_PRESETS, netReturnRate, DEFAULT_RULE_SET, exceedsRiskyAssetLimit } from "@/src/calculator";
 import { Select } from "@/src/components/ui/Select";
 import { Card } from "@/src/components/ui/Card";
 import { formatPercent } from "../utils/formatters";
@@ -37,6 +37,11 @@ export function PortfolioPresetSelect({ presetId, onSelectPreset }: PortfolioPre
             <p className="text-gray-500">{activePreset.description}</p>
             <p className="text-xs text-gray-400">이 수익률은 서비스의 가정치이며 예측이나 보장이 아닙니다.</p>
           </div>
+          {exceedsRiskyAssetLimit(activePreset.riskyAssetWeight) && (
+            <div className="mt-2 rounded bg-yellow-100 px-3 py-2 text-xs text-yellow-800">
+              위험자산 비중이 서비스 기준 한도 {formatPercent(DEFAULT_RULE_SET.riskyAssetLimit, 0)}를 초과하는 가정입니다.
+            </div>
+          )}
         </Card>
       )}
     </div>

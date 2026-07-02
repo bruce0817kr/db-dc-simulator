@@ -219,4 +219,23 @@ describe("SimulatorPage", () => {
     expect(screen.queryByText((text) => text.includes("추천"))).toBeNull();
     expect(screen.queryByText((text) => text.includes("가입"))).toBeNull();
   });
+
+  it("(rules-a) '현재 서비스의 계산 가정' summary 렌더", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.getByText("현재 서비스의 계산 가정")).toBeTruthy();
+  });
+
+  it("(rules-b) 현 프리셋들에서 한도 초과 경고 배너 미렌더", () => {
+    render(<SimulatorPage />);
+
+    const presetSelect = screen.getByLabelText("포트폴리오 프리셋");
+    fireEvent.change(presetSelect, { target: { value: "aggressive" } });
+
+    expect(
+      screen.queryByText((text) =>
+        text.includes("위험자산 비중이 서비스 기준 한도")
+      )
+    ).toBeNull();
+  });
 });

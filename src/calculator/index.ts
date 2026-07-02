@@ -14,3 +14,5 @@ export {
 } from "./sensitivity";
 export type { PortfolioPreset } from "./portfolio";
 export { PORTFOLIO_PRESETS, netReturnRate } from "./portfolio";
+export type { PensionRuleSet } from "./rules";
+export { DEFAULT_RULE_SET, exceedsRiskyAssetLimit } from "./rules";

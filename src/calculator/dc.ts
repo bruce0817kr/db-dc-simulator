@@ -1,4 +1,5 @@
 import { calculateCurrentDbSettlement } from "./db";
+import { DEFAULT_RULE_SET } from "./rules";
 
 export function calculateDcAmount(
   currentSalary: number,
@@ -19,7 +20,7 @@ export function calculateDcAmount(
   let dcAmount = settlement * Math.pow(1 + r, n);
 
   for (let t = 1; t <= n; t++) {
-    const contribution = (currentSalary * Math.pow(1 + g, t)) / 12;
+    const contribution = currentSalary * Math.pow(1 + g, t) * DEFAULT_RULE_SET.dcContributionRate;
     dcAmount += contribution * Math.pow(1 + r, n - t);
   }
 
