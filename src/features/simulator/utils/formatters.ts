@@ -1,3 +1,5 @@
+import { TIE_THRESHOLD_KRW } from "@/src/calculator";
+
 function addThousandsSeparators(n: number): string {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -62,7 +64,7 @@ export function formatDifference(
   dbAmount: number
 ): { winner: "DC" | "DB" | "TIE"; amountText: string } {
   void dbAmount;
-  if (Math.abs(difference) < 100_000) {
+  if (Math.abs(difference) < TIE_THRESHOLD_KRW) {
     return { winner: "TIE", amountText: formatKRWCompact(0) };
   }
   const winner = difference > 0 ? "DC" : "DB";

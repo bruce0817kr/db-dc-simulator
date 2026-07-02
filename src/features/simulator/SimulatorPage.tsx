@@ -7,6 +7,7 @@ import { SimulatorForm } from "./components/SimulatorForm";
 import { ResultPanel } from "./components/ResultPanel";
 import { AssumptionNotice } from "./components/AssumptionNotice";
 import { ShareSection } from "./components/ShareSection";
+import { SensitivitySection } from "./components/SensitivitySection";
 import { parseSearchToFormValues } from "./utils/urlParams";
 
 export function SimulatorPage() {
@@ -33,6 +34,7 @@ export function SimulatorPage() {
         </div>
         <div>
           <ResultPanel result={result} input={input} hasErrors={hasErrors} />
+          {input && <SensitivitySection input={input} />}
           <ShareSection values={values} disabled={hasErrors} />
         </div>
       </div>

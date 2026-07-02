@@ -105,4 +105,67 @@ describe("SimulatorPage", () => {
 
     expect(salaryInput.value).toBe("90,000,000");
   });
+
+  it("(h) 민감도 섹션: 표 3개 렌더 (caption/heading으로 식별)", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.getByText("가정이 달라지면?")).toBeTruthy();
+    expect(screen.getByText("세로: 임금상승률, 가로: DC 운용수익률")).toBeTruthy();
+    expect(screen.getByText("수익률별 결과 (현재 임금상승률 기준)")).toBeTruthy();
+    expect(screen.getByText("임금상승률별 손익분기 수익률")).toBeTruthy();
+    expect(screen.getByText("민감도 매트릭스")).toBeTruthy();
+  });
+
+  it("(i) 민감도 매트릭스 데이터 셀 54개", () => {
+    render(<SimulatorPage />);
+
+    const dcCells = screen.getAllByText("DC");
+    const dbCells = screen.getAllByText("DB");
+    const tieCells = screen.getAllByText("=");
+    const total = dcCells.length + dbCells.length + tieCells.length;
+    expect(total).toBe(54);
+  });
+
+  it("(j) 기본값 dcReturnRate=5%는 ReturnRateTable에서 '현재 입력' 라벨 존재", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.getByText("현재 입력")).toBeTruthy();
+  });
+
+  it("(k) '거의 동일' 또는 '=' 텍스트 존재", () => {
+    render(<SimulatorPage />);
+
+    const tieText =
+      screen.queryByText("거의 동일") !== null ||
+      screen.queryAllByText("=").length > 0;
+    expect(tieText).toBe(true);
+  });
+
+  it("(l) 연봉 지워 invalid → '가정이 달라지면?' 미렌더", () => {
+    render(<SimulatorPage />);
+
+    const salaryInput = screen.getByLabelText("현재 연봉");
+    fireEvent.change(salaryInput, { target: { value: "" } });
+
+    expect(screen.queryByText("가정이 달라지면?")).toBeNull();
+  });
+
+  it("(m) 임금상승률 2.5% (grid 밖) 입력 → 수익률별 결과표에 금액 렌더 ('-' 아님)", () => {
+    render(<SimulatorPage />);
+
+    const growthInput = screen.getByLabelText("예상 임금상승률");
+    fireEvent.change(growthInput, { target: { value: "2.5" } });
+
+    const heading = screen.getByText("수익률별 결과 (현재 임금상승률 기준)");
+    const table = heading.parentElement!.querySelector("table")!;
+    const bodyCells = table.querySelectorAll("tbody td");
+    expect(bodyCells.length).toBeGreaterThan(0);
+    const dashCells = Array.from(bodyCells).filter(
+      (cell) => cell.textContent?.trim() === "-"
+    );
+    expect(dashCells.length).toBe(0);
+    expect(
+      Array.from(bodyCells).some((cell) => cell.textContent?.includes("만 원"))
+    ).toBe(true);
+  });
 });
