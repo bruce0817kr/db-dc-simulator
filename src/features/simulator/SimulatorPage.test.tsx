@@ -507,4 +507,31 @@ describe("SimulatorPage", () => {
     const printBtn = screen.getByRole("button", { name: "보고서 인쇄 · PDF 저장" }) as HTMLButtonElement;
     expect(printBtn.disabled).toBe(true);
   });
+  it("(a11y-a) 핵심 입력 필드 7개가 모두 label과 연결", () => {
+    render(<SimulatorPage />);
+
+    expect(screen.getByLabelText("현재 연봉")).toBeTruthy();
+    expect(screen.getByLabelText("현재 근속연수")).toBeTruthy();
+    expect(screen.getByLabelText("남은 근속연수")).toBeTruthy();
+    expect(screen.getByLabelText("예상 임금상승률")).toBeTruthy();
+    expect(screen.getByLabelText("DC 예상 운용수익률")).toBeTruthy();
+    expect(screen.getByLabelText("연간 변동성")).toBeTruthy();
+    expect(screen.getByLabelText("전환 방식")).toBeTruthy();
+  });
+
+  it("(a11y-b) 포트폴리오 프리셋 select가 label과 연결", () => {
+    render(<SimulatorPage />);
+    expect(screen.getByLabelText("포트폴리오 프리셋")).toBeTruthy();
+  });
+
+  it("(a11y-c) 페이지에 이미지 없음 (<img> 0건)", () => {
+    const { container } = render(<SimulatorPage />);
+    expect(container.querySelectorAll("img").length).toBe(0);
+  });
+
+  it("(a11y-d) 페이지에 heading(h1, h2, h3) 존재", () => {
+    render(<SimulatorPage />);
+    const headings = screen.getAllByRole("heading");
+    expect(headings.length).toBeGreaterThan(0);
+  });
 });
