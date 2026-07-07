@@ -108,6 +108,8 @@ docs/
 | `docs/disclaimer.md` | 면책 고지, 세전 시뮬레이션, 개인정보 안내 |
 | `docs/test-scenarios.md` | 테스트 시나리오 명세, golden 케이스 |
 | `docs/release-checklist.md` | 배포 전 검증 항목 |
+| `docs/manual-qa.md` | 수동 QA 시나리오 18개 + 결과 기록 형식 |
+| `docs/deployment-notes.md` | 빌드 산출물, 호스팅, 롤백 절차 |
 
 ## 면책 고지
 
@@ -115,3 +117,7 @@ docs/
 실제 퇴직급여는 회사 퇴직연금 규약, 평균임금 산정 방식, 임금피크제, 상여·성과급, 세금, 운용성과에 따라 달라질 수 있습니다.
 
 자세한 내용은 `docs/disclaimer.md` 참조.
+
+## 배포 전 확인
+
+릴리스 전 `docs/release-checklist.md`와 `docs/manual-qa.md`의 항목을 모두 충족해야 합니다. 배포 환경 정보는 `docs/deployment-notes.md`를 참조.
