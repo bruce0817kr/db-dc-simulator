@@ -14,8 +14,8 @@ interface GrowthBreakevenTableProps {
 
 export function GrowthBreakevenTable({ rows }: GrowthBreakevenTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-[400px] w-full text-sm border-collapse">
+    <div className="overflow-x-auto print:overflow-visible">
+      <table className="min-w-[400px] w-full text-sm border-collapse print:min-w-0">
         <thead>
           <tr className="border-b border-gray-200">
             <th scope="col" className="py-2 px-3 text-left font-semibold text-gray-600">임금상승률</th>

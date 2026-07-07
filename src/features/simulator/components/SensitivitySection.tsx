@@ -20,7 +20,7 @@ export function SensitivitySection({ input }: SensitivitySectionProps) {
   const breakevenRows = useMemo(() => buildBreakevenByGrowthRate(input), [input]);
 
   return (
-    <section className="mt-8 space-y-6">
+    <section className="mt-8 space-y-6 break-inside-avoid">
       <h2 className="text-lg font-bold text-gray-900">가정이 달라지면? <span className="text-sm font-normal text-gray-400">(세전 기준)</span></h2>
 
       <div className="space-y-2">

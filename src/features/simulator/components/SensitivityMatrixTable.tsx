@@ -11,8 +11,8 @@ export function SensitivityMatrixTable({ matrix }: SensitivityMatrixTableProps) 
   const { salaryGrowthRates, dcReturnRates, points } = matrix;
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-max text-sm border-collapse">
+    <div className="overflow-x-auto print:overflow-visible">
+      <table className="min-w-max text-sm border-collapse print:min-w-0">
         <caption className="text-xs text-gray-500 mb-1 text-left">세로: 임금상승률, 가로: DC 운용수익률</caption>
         <thead>
           <tr className="border-b border-gray-200">

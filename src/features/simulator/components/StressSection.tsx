@@ -29,7 +29,7 @@ export function StressSection({ input, result, riskyAssetWeight, isCustomWeight 
     : `가정: 위험자산 비중 ${formatPercent(riskyAssetWeight, 0)} (선택한 프리셋 기준)`;
 
   return (
-    <section className="mt-8 space-y-4">
+    <section className="mt-8 space-y-4 break-inside-avoid">
       <h2 className="text-lg font-bold text-gray-900">
         퇴직 직전 시장이 하락한다면? (스트레스 테스트) <span className="text-sm font-normal text-gray-400">(세전 기준)</span>
       </h2>
@@ -48,8 +48,8 @@ export function StressSection({ input, result, riskyAssetWeight, isCustomWeight 
           <p className="text-sm text-gray-700">{baseSentence}</p>
           <p className="text-sm text-gray-700">{stressSentence}</p>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto print:overflow-visible">
+            <table className="w-full text-sm print:min-w-0">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th scope="col" className="py-2 text-left text-xs font-semibold text-gray-600">

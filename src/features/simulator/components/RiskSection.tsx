@@ -27,7 +27,7 @@ export function RiskSection({ input, volatility, dbAmount }: RiskSectionProps) {
   const worstDiff = mc.p5 - dbAmount;
 
   return (
-    <section className="mt-8 space-y-4">
+    <section className="mt-8 space-y-4 break-inside-avoid">
       <h2 className="text-lg font-bold text-gray-900">
         운용 성과가 흔들린다면? (리스크 시뮬레이션) <span className="text-sm font-normal text-gray-400">(세전 기준)</span>
       </h2>
@@ -64,8 +64,8 @@ export function RiskSection({ input, volatility, dbAmount }: RiskSectionProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto print:overflow-visible">
+        <table className="w-full text-sm print:min-w-0">
           <thead>
             <tr className="border-b border-gray-200">
               <th scope="col" className="py-2 text-left text-xs font-semibold text-gray-600">

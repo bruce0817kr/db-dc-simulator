@@ -10,6 +10,8 @@ import { ShareSection } from "./components/ShareSection";
 import { SensitivitySection } from "./components/SensitivitySection";
 import { RiskSection } from "./components/RiskSection";
 import { StressSection } from "./components/StressSection";
+import { PrintReportHeader } from "./components/PrintReportHeader";
+import { ReportSection } from "./components/ReportSection";
 import { parseSearchToFormValues } from "./utils/urlParams";
 
 export function SimulatorPage() {
@@ -20,11 +22,29 @@ export function SimulatorPage() {
     useSimulatorForm(initialValues);
   const hasErrors = Object.keys(errors).length > 0;
 
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+
+  function handlePrint() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    setGeneratedAt(`${yyyy}-${mm}-${dd} ${hh}:${min}`);
+    setTimeout(() => window.print(), 0);
+  }
+
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
-      <HeroSection />
+      {input && (
+        <PrintReportHeader values={values} input={input} generatedAt={generatedAt} />
+      )}
+      <div className="print:hidden">
+        <HeroSection />
+      </div>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[400px_1fr]">
-        <div>
+        <div className="print:hidden">
           <SimulatorForm
             values={values}
             errors={errors}
@@ -59,7 +79,10 @@ export function SimulatorPage() {
               isCustomWeight={values.portfolioPresetId === "CUSTOM"}
             />
           )}
-          <ShareSection values={values} disabled={hasErrors} />
+          <div className="print:hidden">
+            <ShareSection values={values} disabled={hasErrors} />
+          </div>
+          <ReportSection disabled={hasErrors} onPrint={handlePrint} />
         </div>
       </div>
       <AssumptionNotice />

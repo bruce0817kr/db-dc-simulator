@@ -20,7 +20,7 @@ export function DisplayModeToggle({
   onChange,
 }: DisplayModeToggleProps) {
   return (
-    <div className="mb-4 space-y-3">
+    <div className="mb-4 space-y-3 print:hidden">
       <label className="flex min-h-[44px] cursor-pointer items-center gap-3">
         <input
           type="checkbox"

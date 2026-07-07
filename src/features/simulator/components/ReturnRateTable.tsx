@@ -13,8 +13,8 @@ export function ReturnRateTable({ input, matrix }: ReturnRateTableProps) {
   const { dcReturnRates, points } = matrix;
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-[480px] w-full text-sm border-collapse">
+    <div className="overflow-x-auto print:overflow-visible">
+      <table className="min-w-[480px] w-full text-sm border-collapse print:min-w-0">
         <thead>
           <tr className="border-b border-gray-200">
             <th scope="col" className="py-2 px-3 text-left font-semibold text-gray-600">DC 수익률</th>

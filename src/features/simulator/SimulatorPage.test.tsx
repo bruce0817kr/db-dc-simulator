@@ -450,4 +450,61 @@ describe("SimulatorPage", () => {
       screen.getByText((t) => t.includes("세법 기준 단순 추정치입니다"))
     ).toBeTruthy();
   });
+
+  it("(r-a) '보고서 인쇄 · PDF 저장' 버튼 클릭 → window.print 호출", () => {
+    const printMock = vi.fn();
+    Object.defineProperty(window, "print", { value: printMock, configurable: true });
+    vi.useFakeTimers();
+
+    render(<SimulatorPage />);
+
+    const printBtn = screen.getByRole("button", { name: "보고서 인쇄 · PDF 저장" });
+    fireEvent.click(printBtn);
+
+    vi.runAllTimers();
+    expect(printMock).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it("(r-b) 인쇄 버튼 클릭 후 PrintReportHeader에 생성 시각 텍스트 존재 (YYYY-MM-DD 형식)", () => {
+    vi.useFakeTimers();
+
+    render(<SimulatorPage />);
+
+    const printBtn = screen.getByRole("button", { name: "보고서 인쇄 · PDF 저장" });
+    fireEvent.click(printBtn);
+
+    expect(
+      screen.getByText((t) => /\d{4}-\d{2}-\d{2}/.test(t))
+    ).toBeTruthy();
+
+    vi.useRealTimers();
+  });
+
+  it("(r-c) PrintReportHeader에 입력 요약 값 렌더 (연봉 포함)", () => {
+    render(<SimulatorPage />);
+
+    expect(
+      screen.getByText((t) => t.includes("80,000,000"))
+    ).toBeTruthy();
+  });
+
+  it("(r-d) '투자 권유가 아닌 시뮬레이션 결과' 문구 존재", () => {
+    render(<SimulatorPage />);
+
+    expect(
+      screen.getByText((t) => t.includes("투자 권유가 아닌 시뮬레이션 결과"))
+    ).toBeTruthy();
+  });
+
+  it("(r-e) 연봉 지워 invalid → '보고서 인쇄 · PDF 저장' 버튼 disabled", () => {
+    render(<SimulatorPage />);
+
+    const salaryInput = screen.getByLabelText("현재 연봉");
+    fireEvent.change(salaryInput, { target: { value: "" } });
+
+    const printBtn = screen.getByRole("button", { name: "보고서 인쇄 · PDF 저장" }) as HTMLButtonElement;
+    expect(printBtn.disabled).toBe(true);
+  });
 });
