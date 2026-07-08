@@ -22,6 +22,37 @@
 - 크로스 브라우저 전면 매트릭스 (최신 1개 버전만)
 - 접근성 심화 검사 (WCAG 전체 준수 감사)
 
+## 1-1. 자동화 매핑 (PR 14)
+
+PR 14에서 18개 시나리오 중 자동화 가능한 핵심 흐름을 Playwright E2E로 자동화했다. 아래 표는 각 시나리오의 자동/수동 분류와 매핑된 테스트 파일을 나타낸다.
+
+| # | 시나리오 | 자동화 | 테스트 파일 |
+|---|---------|--------|------------|
+| 4.1 | 기본 샘플 입력 | 자동 | `e2e/basic.spec.ts` |
+| 4.2 | DB 유리 (DC 1%) | 자동 | `e2e/scenarios.spec.ts` |
+| 4.3 | DC 유리 (DC 7%) | 자동 | `e2e/scenarios.spec.ts` |
+| 4.4 | CUSTOM_TRANSFER_AMOUNT | 자동 | `e2e/scenarios.spec.ts` |
+| 4.5 | 임금피크제 (WAGE_PEAK) | 수동 유지 | — UI 상세 UX |
+| 4.6 | STEP_UP | 수동 유지 | — UI 상세 UX |
+| 4.7 | YEARLY_CUSTOM | 수동 유지 | — UI 상세 UX |
+| 4.8 | 포트폴리오 프리셋 변경 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.9 | 위험자산 한도 안내 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.10 | 몬테카를로 리스크 섹션 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.11 | 스트레스 테스트 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.12 | 세전/세후 토글 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.13 | 현재가치 표시 | 자동 | `e2e/scenarios.spec.ts` |
+| 4.14 | URL 공유 복원 | 자동 | `e2e/url-share.spec.ts` |
+| 4.15 | 인쇄/PDF 보고서 | 부분 자동 | `e2e/print.spec.ts` (media print). 최종 PDF 저장은 수동 유지 |
+| 4.16 | 모바일 375px | 자동 | `e2e/mobile.spec.ts` |
+| 4.17 | 긴 금액 (10억) | 부분 자동 | `e2e/scenarios.spec.ts` (포맷·콘솔 에러). 시각 깨짐은 수동 |
+| 4.18 | 키보드 탭 이동 | 부분 자동 | `e2e/a11y.spec.ts` axe 스캔 포괄. 상세 순서는 수동 |
+| 신규 | 접근성 자동 스캔 | 자동 | `e2e/a11y.spec.ts` |
+| 신규 | 제품 원칙 회귀 | 자동 | `e2e/a11y.spec.ts` |
+
+- 자동 14개 + 부분 자동 3개 + 수동 유지 3개(4.5, 4.6, 4.7)
+- Playwright 실행: `pnpm e2e` 또는 통합 `pnpm qa`
+- WebKit/Safari smoke은 macOS/iOS 환경에서 후속 PR 또는 수동 QA로 남긴다
+
 ## 2. QA 환경
 
 - 로컬 개발: `pnpm dev` → http://localhost:3000

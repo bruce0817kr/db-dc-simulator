@@ -61,6 +61,12 @@ pnpm test       # 253/253 통과 기대
 pnpm lint       # 오류·경고 없음
 pnpm build      # 정적 프리렌더 / 완료 + TS 검사 통과
 
+# 2-1. E2E 게이트 (PR 14)
+pnpm exec playwright install chromium   # 최초 1회
+pnpm e2e                                  # Playwright 33건
+# 또는 통합
+pnpm qa                                    # test + lint + build + e2e
+
 # 3. 수동 QA (docs/manual-qa.md 18개 시나리오)
 pnpm dev        # 로컬 QA
 # 또는

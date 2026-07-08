@@ -29,10 +29,13 @@ DB 유지 vs DC 전환 예상 퇴직급여 비교, 손익분기 연평균 수익
 
 ```bash
 pnpm install
+pnpm exec playwright install chromium   # E2E용 브라우저 (최초 1회)
 pnpm dev      # 개발 서버 (http://localhost:3000)
 pnpm test     # 단위/UI 테스트 (vitest)
 pnpm lint     # eslint
 pnpm build    # 프로덕션 빌드 (정적 프리렌더 /)
+pnpm e2e      # Playwright E2E (release QA)
+pnpm qa       # test + lint + build + e2e 통합 게이트
 ```
 
 ## 기술 스택

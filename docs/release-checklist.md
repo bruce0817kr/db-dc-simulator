@@ -13,6 +13,8 @@
 | Lint | `pnpm lint` | eslint 오류·경고 없음 |
 | Typecheck | `pnpm build` (TS 검사 포함) | Finished TypeScript 성공 |
 | Build | `pnpm build` | 정적 프리렌더 `/` 완료 |
+| E2E | `pnpm e2e` | Playwright 전량 통과 (현재 33건, PR 14) |
+| 통합 QA | `pnpm qa` | test && lint && build && e2e 전부 통과 |
 
 - 4-gate 중 하나라도 실패 시 배포 불가.
 - `package.json` scripts 기준:
@@ -21,6 +23,9 @@
   - `start`: next start
   - `lint`: eslint
   - `test`: vitest run
+  - `e2e`: playwright test
+  - `e2e:headed`: playwright test --headed
+  - `qa`: pnpm test && pnpm lint && pnpm build && pnpm e2e
 
 ## 2. 계산 정합성
 
@@ -171,3 +176,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 |------|------|------|
 | 2026-07-07 | 최초 작성 (PR 12) | master plan 12절 기반 세부화 |
 | 2026-07-07 | 수동 QA 절 추가 (PR 13) | 18개 시나리오 + 브라우저 매트릭스 + 4-gate 테스트 수 253으로 갱신 |
+| 2026-07-08 | E2E 게이트 추가 (PR 14) | Playwright 자동화 33건 추가, `pnpm e2e`/`pnpm qa` 게이트 도입 |
