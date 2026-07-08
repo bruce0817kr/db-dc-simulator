@@ -7,4 +7,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "."),
     },
   },
+  test: {
+    include: [
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
+      "app/**/*.test.ts",
+      "app/**/*.test.tsx",
+    ],
+  },
 });
