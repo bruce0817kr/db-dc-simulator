@@ -16,6 +16,8 @@ interface SimulatorFormProps {
   onSelectScenario: (values: SimulatorFormValues) => void;
   presetId: string;
   onSelectPreset: (id: string) => void;
+  onSetYearlySalary: (index: number, value: string) => void;
+  onFillYearlyFromBaseline: () => void;
 }
 
 const CONVERSION_OPTIONS: { value: ConversionType; label: string }[] = [
@@ -23,7 +25,7 @@ const CONVERSION_OPTIONS: { value: ConversionType; label: string }[] = [
   { value: "CUSTOM_TRANSFER_AMOUNT", label: "정산금 직접 입력" },
 ];
 
-export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSelectScenario, presetId, onSelectPreset }: SimulatorFormProps) {
+export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSelectScenario, presetId, onSelectPreset, onSetYearlySalary, onFillYearlyFromBaseline }: SimulatorFormProps) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-gray-800">입력 정보</h2>
@@ -127,6 +129,8 @@ export function SimulatorForm({ values, errors, onChange, onBlur, onReset, onSel
         errors={errors}
         onChange={onChange}
         onBlur={onBlur}
+        onSetYearlySalary={onSetYearlySalary}
+        onFillYearlyFromBaseline={onFillYearlyFromBaseline}
       />
 
       <Button variant="secondary" onClick={onReset} type="button">

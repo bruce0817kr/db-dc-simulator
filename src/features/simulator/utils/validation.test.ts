@@ -22,6 +22,7 @@ const valid: SimulatorFormValues = {
   showAfterTax: false,
   showPresentValue: false,
   inflationRate: "2",
+  yearlySalaries: [],
 };
 
 describe("validateForm", () => {
@@ -368,5 +369,83 @@ describe("validateForm — advanced salary fields", () => {
   it("dbAverageSalary 음수 → 에러", () => {
     const { errors } = validateForm({ ...advValid, dbAverageSalary: "-1000" });
     expect(errors.dbAverageSalary).toBe("평균임금은 0보다 큰 금액으로 입력해주세요.");
+  });
+});
+
+describe("validateForm — YEARLY_CUSTOM", () => {
+  it("정상 n개 → salaryPathConfig YEARLY_CUSTOM + yearlySalaries number[]", () => {
+    const { errors, input } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "3",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "52,000,000", "54,000,000"],
+    });
+    expect(Object.keys(errors)).toHaveLength(0);
+    expect(input?.salaryPathConfig?.mode).toBe("YEARLY_CUSTOM");
+    expect(input?.salaryPathConfig?.yearlySalaries).toEqual([50_000_000, 52_000_000, 54_000_000]);
+  });
+
+  it("길이 불일치 → 에러 + input null", () => {
+    const { errors, input } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "3",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "52,000,000"],
+    });
+    expect(errors.yearlySalaries).toContain("현재 2개");
+    expect(input).toBeNull();
+  });
+
+  it("빈 값 → 에러", () => {
+    const { errors } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "3",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "", "54,000,000"],
+    });
+    expect(errors.yearlySalaries).toContain("2년차");
+  });
+
+  it("0 이하 → 에러", () => {
+    const { errors } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "2",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "0"],
+    });
+    expect(errors.yearlySalaries).toContain("0 이하");
+  });
+
+  it("음수 → 에러", () => {
+    const { errors } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "2",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "-1000"],
+    });
+    expect(errors.yearlySalaries).toContain("0 이하");
+  });
+
+  it("과도한 금액(1조 초과) → 에러", () => {
+    const { errors } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "1",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["1000000000001"],
+    });
+    expect(errors.yearlySalaries).toContain("과다");
+  });
+
+  it("dbAverageSalaryOverride 동시 입력 → 통과 + 둘 다 반영", () => {
+    const { errors, input } = validateForm({
+      ...advValid,
+      remainingYearsOfService: "2",
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["50,000,000", "52,000,000"],
+      dbAverageSalary: "9,000,000",
+    });
+    expect(Object.keys(errors)).toHaveLength(0);
+    expect(input?.salaryPathConfig?.mode).toBe("YEARLY_CUSTOM");
+    expect(input?.dbAverageSalaryOverride).toBe(9_000_000);
   });
 });

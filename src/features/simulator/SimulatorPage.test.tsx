@@ -535,3 +535,65 @@ describe("SimulatorPage", () => {
     expect(headings.length).toBeGreaterThan(0);
   });
 });
+
+describe("SimulatorPage — YEARLY_CUSTOM", () => {
+  it("(yearly-a) 선택 시 n개 연도별 연봉 입력 표시 + 기본 모드 복귀 시 숨김", () => {
+    render(<SimulatorPage />);
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "YEARLY_CUSTOM" } });
+
+    expect(screen.getByLabelText("1년차 연봉")).toBeTruthy();
+    expect(screen.getByLabelText("2년차 연봉")).toBeTruthy();
+    expect(screen.getByLabelText("3년차 연봉")).toBeTruthy();
+    expect(screen.queryByLabelText("4년차 연봉")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "CONSTANT_GROWTH" } });
+    expect(screen.queryByLabelText("1년차 연봉")).toBeNull();
+  });
+
+  it("(yearly-b) 현재 연봉으로 채우기 버튼 → baseline 값 채움", () => {
+    render(<SimulatorPage />);
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "YEARLY_CUSTOM" } });
+
+    // 1년차 비운 뒤 버튼 클릭 → baseline(80,000,000 × 1.03 = 82,400,000)으로 채움
+    fireEvent.change(screen.getByLabelText("1년차 연봉"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "현재 연봉으로 채우기" }));
+    expect((screen.getByLabelText("1년차 연봉") as HTMLInputElement).value).toBe("82,400,000");
+  });
+
+  it("(yearly-c) remainingYearsOfService 증가 → 기존값 보존 + pad", () => {
+    render(<SimulatorPage />);
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "YEARLY_CUSTOM" } });
+
+    fireEvent.change(screen.getByLabelText("1년차 연봉"), { target: { value: "50000000" } });
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "3" } });
+
+    // 사용자가 입력한 1년차는 유지(currentSalary/growth 변경이 아닌 n 변경이므로 보존)
+    expect((screen.getByLabelText("1년차 연봉") as HTMLInputElement).value).toBe("50000000");
+    expect(screen.getByLabelText("3년차 연봉")).toBeTruthy();
+  });
+
+  it("(yearly-d) 빈 값 → validation 에러 + 결과 패널 계산 보류", () => {
+    render(<SimulatorPage />);
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "YEARLY_CUSTOM" } });
+
+    fireEvent.change(screen.getByLabelText("1년차 연봉"), { target: { value: "" } });
+
+    expect(screen.getByText(/연도별 연봉을 확인해주세요/)).toBeTruthy();
+    expect(screen.getByText("모든 입력값을 올바르게 입력하면 결과가 표시됩니다.")).toBeTruthy();
+  });
+
+  it("(yearly-e) currentSalary 변경만으로 기존 yearlySalaries 자동 덮어쓰지 않음", () => {
+    render(<SimulatorPage />);
+    fireEvent.change(screen.getByLabelText("남은 근속연수"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("임금 경로 모드"), { target: { value: "YEARLY_CUSTOM" } });
+    fireEvent.change(screen.getByLabelText("1년차 연봉"), { target: { value: "50000000" } });
+
+    // currentSalary 변경 → yearlySalaries 미갱신(1년차 사용자 입력 유지)
+    fireEvent.change(screen.getByLabelText("현재 연봉"), { target: { value: "90000000" } });
+    expect((screen.getByLabelText("1년차 연봉") as HTMLInputElement).value).toBe("50000000");
+  });
+});

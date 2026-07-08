@@ -23,6 +23,7 @@ const BASE_VALUES: SimulatorFormValues = {
   showAfterTax: false,
   showPresentValue: false,
   inflationRate: "2",
+  yearlySalaries: [],
 };
 
 describe("buildShareUrl / parseSearchToFormValues 왕복", () => {

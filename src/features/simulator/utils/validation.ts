@@ -103,6 +103,31 @@ export function validateForm(values: SimulatorFormValues): {
     }
   }
 
+  if (values.salaryPathMode === "YEARLY_CUSTOM") {
+    const n = remainingYears;
+    const arr = values.yearlySalaries;
+    if (arr.length !== n) {
+      errors.yearlySalaries = `남은 근속연수(${n})개의 연도별 연봉을 입력해주세요. (현재 ${arr.length}개)`;
+    } else {
+      const bad: string[] = [];
+      arr.forEach((raw, i) => {
+        const v = parseKRWInput(raw);
+        if (v === null) {
+          bad.push(`${i + 1}년차`);
+        } else if (v <= 0) {
+          bad.push(`${i + 1}년차(0 이하)`);
+        } else if (v > 1e12) {
+          bad.push(`${i + 1}년차(과다)`);
+        }
+      });
+      if (bad.length > 0) {
+        const head = bad.slice(0, 5).join(", ");
+        const tail = bad.length > 5 ? ` 외 ${bad.length - 5}개` : "";
+        errors.yearlySalaries = `연도별 연봉을 확인해주세요: ${head}${tail}`;
+      }
+    }
+  }
+
   let dbAverageSalaryOverride: number | undefined = undefined;
   if ((values.dbAverageSalary ?? "").trim() !== "") {
     const parsed = parseKRWInput(values.dbAverageSalary);
@@ -145,6 +170,12 @@ export function validateForm(values: SimulatorFormValues): {
         },
       ],
     };
+  } else if (values.salaryPathMode === "YEARLY_CUSTOM") {
+    // type guard로 null 제거 후 number[] 구성 (위 validation 통과 전제)
+    const nums = values.yearlySalaries
+      .map(parseKRWInput)
+      .filter((x): x is number => x !== null && x > 0 && x <= 1e12);
+    salaryPathConfig = { mode: "YEARLY_CUSTOM", yearlySalaries: nums };
   }
 
   const input: SimulationInput = {
