@@ -13,7 +13,7 @@ DB 유지 vs DC 전환 예상 퇴직급여 비교, 손익분기 연평균 수익
 - 퇴직 직전 시장 하락 스트레스 테스트 (-10/20/30/40%)
 - 퇴직소득세 추정 + 현재가치 환산 (옵션)
 - URL 공유, 인쇄용 보고서 출력
-- 고급 임금 시나리오 (CONSTANT_GROWTH, WAGE_PEAK, STEP_UP, YEARLY_CUSTOM)
+- 고급 임금 시나리오 (CONSTANT_GROWTH, WAGE_PEAK, STEP_UP)
 
 ## 제품 원칙 (요약)
 
