@@ -149,6 +149,8 @@ probabilityDcBeatsDb = (dc > db인 iteration 수) / 전체 iteration 수
 | `STEP_UP` | path[t-1] = S₀×(1+g)^t × ∏(1+extraRate_i) for all i where yearIndex_i ≤ t | 복수 임시 인상, 누적 유지 |
 | `YEARLY_CUSTOM` | path[t-1] = yearlySalaries[t-1] | 직접 입력. 길이 ≠ n이면 throw |
 
+> **PR 15 노트**: `YEARLY_CUSTOM`은 v0.1.0에서 UI 미노출(N/A/Deferred) 상태였으나, PR 15부터 `고급 임금 시나리오` details 안에서 UI로 노출한다. **수식은 변경 없이** 기존 `buildSalaryPath` 로직을 재사용한다(연도별 연봉 입력 → 검증 → `SimulationInput.salaryPathConfig` 주입). URL 공유에는 연도별 연봉을 포함하지 않는다.
+
 ### WAGE_PEAK 1회 감액+저성장 모델 상세
 
 peakStartYear 시점에 직전 연봉(t=1이 피크면 S₀) × (1 − cutRate)로 1회 감액하고, 이후 postPeakGrowthRate로 매년 성장한다.

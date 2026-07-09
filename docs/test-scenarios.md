@@ -239,6 +239,7 @@ iterations: 1000
 - 길이 ≠ n이면 throw
 
 자동화 매핑: `salary-path.test.ts` — `buildSalaryPath YEARLY_CUSTOM`
+- UI/E2E 매핑(PR 15): `src/features/simulator/SimulatorPage.test.tsx`(resize·채우기·뱃지·미갱신), `validation.test.ts`(길이/빈/0/음수/과다/override), `components/PrintReportHeader.test.tsx`(요약줄·STEP_UP 라벨), `components/ShareSection.test.tsx`(미포함 안내), `e2e/yearly-custom.spec.ts`(yc-1~yc-5)
 
 ### 5.5 dbAverageSalaryOverride
 

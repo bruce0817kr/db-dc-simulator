@@ -1,6 +1,6 @@
 # PR 15 설계 — YEARLY_CUSTOM salary path UI 노출
 
-> 상태: **설계(PR 15A)**. 구현 없음.
+> 상태: **구현 완료(PR 15B/15C)**. UI + 검증 + 단위테스트(15B, `ea1c994`), 보고서 + 공유 안내 + E2E + 문서(15C). 검증 결과는 `docs/qa-results-pr15-2026-07-09.md`.
 > 기반: v0.1.0 (`78e810f`) 이후 작업. v0.1.0 태그·rc.1·rc.2 불변.
 > 배경: `YEARLY_CUSTOM`은 계산 엔진·단위 테스트 수준에서 이미 지원되나, v0.1.0 UI에는 노출하지 않았음(`docs/qa-results-2026-07-08.md`에서 N/A·Deferred, 비차단). PR 15에서 UI 노출.
 

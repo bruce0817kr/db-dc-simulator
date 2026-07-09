@@ -34,7 +34,7 @@ PR 14에서 18개 시나리오 중 자동화 가능한 핵심 흐름을 Playwrig
 | 4.4 | CUSTOM_TRANSFER_AMOUNT | 자동 | `e2e/scenarios.spec.ts` |
 | 4.5 | 임금피크제 (WAGE_PEAK) | 수동 유지 | — UI 상세 UX |
 | 4.6 | STEP_UP | 수동 유지 | — UI 상세 UX |
-| 4.7 | YEARLY_CUSTOM | N/A (v0.1.0 UI 미노출) | 계산 엔진·단위 테스트는 지원. UI 노출은 후속 PR 15 후보. v0.1.0 차단 아님 |
+| 4.7 | YEARLY_CUSTOM (연도별 직접 입력) | 자동 | `e2e/yearly-custom.spec.ts`. 모드 노출·채우기·검증·공유·인쇄 자동. 상세 UX는 수동 보강 |
 | 4.8 | 포트폴리오 프리셋 변경 | 자동 | `e2e/scenarios.spec.ts` |
 | 4.9 | 위험자산 한도 안내 | 자동 | `e2e/scenarios.spec.ts` |
 | 4.10 | 몬테카를로 리스크 섹션 | 자동 | `e2e/scenarios.spec.ts` |
@@ -49,7 +49,7 @@ PR 14에서 18개 시나리오 중 자동화 가능한 핵심 흐름을 Playwrig
 | 신규 | 접근성 자동 스캔 | 자동 | `e2e/a11y.spec.ts` |
 | 신규 | 제품 원칙 회귀 | 자동 | `e2e/a11y.spec.ts` |
 
-- 자동 14개 + 부분 자동 3개 + 수동 유지 2개(4.5, 4.6) + N/A 1개(4.7: v0.1.0 UI 미노출, PR 15 후보)
+- 자동 15개 + 부분 자동 3개 + 수동 유지 2개(4.5, 4.6)
 - Playwright 실행: `pnpm e2e` 또는 통합 `pnpm qa`
 - WebKit/Safari smoke은 macOS/iOS 환경에서 후속 PR 또는 수동 QA로 남긴다
 
@@ -159,16 +159,29 @@ PR 14에서 18개 시나리오 중 자동화 가능한 핵심 흐름을 Playwrig
 결과: [ ] PASS  [ ] FAIL  [ ] N/A
 비고: ___________
 
-### 4.7 YEARLY_CUSTOM — N/A / Deferred
+### 4.7 YEARLY_CUSTOM (연도별 직접 입력)
 
-> **v0.1.0 처리**: 본 시나리오는 v0.1.0 UI QA 대상에서 **N/A(Deferred)**.
-> - 계산 엔진(`src/calculator/salary-path.ts`)과 단위 테스트(`salary-path.test.ts`) 수준에서는 `YEARLY_CUSTOM`을 지원한다.
-> - 단, v0.1.0 UI 임금 경로 드롭다운에는 해당 모드를 노출하지 않는다(`SalaryPathModeUI` = CONSTANT_GROWTH, WAGE_PEAK, STEP_UP 3개).
-> - 후속 **PR 15 후보**: expose YEARLY_CUSTOM salary path UI (입력·검증·URL 공유·보고서·E2E 연결 포함).
-> - 본 항목은 **v0.1.0 릴리스 차단 이슈가 아니다.**
+> **PR 15 처리**: v0.1.0 N/A/Deferred에서 **active 전환**. PR 15B가 UI·검증·단위테스트를, PR 15C가 인쇄 보고서·공유 안내·E2E·문서를 담당.
+> - 계산 엔진(`src/calculator/salary-path.ts`)·단위 테스트는 변경 없이 재사용. UI만 `AdvancedSalarySection` 안에 노출.
+> - URL 공유에는 `yearlySalaries`(및 고급 임금 시나리오 설정 전반)를 포함하지 않는다(개인정보·URL 길이).
 
-결과: [x] N/A (Deferred — v0.1.0 UI 미노출)
-비고: UI 노출은 PR 15에서 별도 검증 예정
+단계:
+1. `고급 임금 시나리오` details 펼침 → 임금 경로 모드 드롭다운에서 **연도별 직접 입력** 선택
+2. 남은 근속연수(`n`)만큼의 연도별 연봉 입력 행이 표시되는지 확인 (1년차 … n년차, `n` 클 때 스크롤 박스)
+3. **현재 연봉으로 채우기** 버튼 클릭 → baseline(현재 연봉 × (1+임금상승률)^t) 값으로 n행 채워지는지 확인
+4. 결과 카드가 갱신되고 **고급 임금 시나리오 적용 중** 뱃지가 표시되는지 확인
+5. 행 하나를 비우면 → `연도별 연봉을 확인해주세요:` 에러 메시지 + 결과 패널 계산 보류 안내
+6. `남은 근속연수`를 늘리면 기존 입력은 보존되고 새 칸만 추가되는지 확인 (줄이면 꼬리 잘림)
+7. 공유 링크 복사 → URL에 `salaries=` 미포함 + 고급 설정 미포함 안내문 표시 확인
+8. 인쇄(PDF) → 입력 요약에 `연도별 직접 입력 — n년치 (첫 … / 마지막 …)` 요약줄 표시 확인
+
+기대 결과:
+- 모드 선택/해제 시 n개 행이 정확히 표시/숨김
+- 검증 통과 시에만 결과 계산 (빈/0/음수/과다/길이 불일치 → 결과 보류)
+- 공유 링크에 연도별 연봉 미노출, 인쇄 보고서에 요약줄 표시
+
+결과: [ ] PASS  [ ] FAIL  [ ] N/A
+비고: ___________
 
 ### 4.8 포트폴리오 프리셋 변경
 
@@ -401,3 +414,4 @@ v0.1.0-rc.1 → v0.1.0 전환 승인 조건:
 | 2026-07-07 | 최초 작성 (PR 13) | 18개 시나리오 + 결과 기록 형식 |
 | 2026-07-08 | 4.6 라벨 정정 (수동 QA) | 실제 UI "승진·호봉 점프/점프 연차/추가 인상률"에 맞춤. 결과는 `docs/qa-results-2026-07-08.md` |
 | 2026-07-08 | 4.7 YEARLY_CUSTOM N/A/Deferred 처리 (방침 B) | v0.1.0 UI 미노출. 엔진·단위 테스트는 지원. UI 노출은 PR 15 후보. v0.1.0 차단 아님 |
+| 2026-07-09 | 4.7 active 전환 (PR 15B/15C) | YEARLY_CUSTOM UI 노출·검증·인쇄 요약·공유 안내·E2E(`e2e/yearly-custom.spec.ts`) 추가. 매핑표·집계 갱신 |
