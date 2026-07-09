@@ -32,6 +32,11 @@ export function ShareSection({ values, disabled }: ShareSectionProps) {
       {message && (
         <p className="text-xs text-gray-600">{message}</p>
       )}
+      {values.salaryPathMode !== "CONSTANT_GROWTH" && (
+        <p className="text-xs text-gray-500">
+          고급 임금 시나리오(임금피크제·승진·연도별 직접 입력) 설정은 공유 링크에 포함되지 않습니다. 링크로 열면 기본 설정으로 표시됩니다.
+        </p>
+      )}
       <p className="text-xs text-gray-500">
         공유 링크에는 입력하신 연봉 등 재무 정보가 그대로 포함됩니다. 링크를 받은 사람은 누구나 볼 수 있으며, 이 서비스는 어떤 정보도 서버에 저장하지 않습니다.
       </p>

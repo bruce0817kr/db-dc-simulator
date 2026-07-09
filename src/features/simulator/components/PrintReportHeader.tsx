@@ -1,7 +1,7 @@
 import { DEFAULT_RULE_SET } from "@/src/calculator";
 import { TAX_RULE_YEAR } from "@/src/calculator/tax-rules";
 import { SimulationInput } from "@/src/calculator/types";
-import { formatPercent } from "../utils/formatters";
+import { formatKRW, formatPercent, parseKRWInput } from "../utils/formatters";
 import { SimulatorFormValues } from "../types";
 
 interface PrintReportHeaderProps {
@@ -20,7 +20,17 @@ export function PrintReportHeader({ values, input, generatedAt }: PrintReportHea
   if (values.salaryPathMode === "WAGE_PEAK") {
     salaryScenarioLabel = `임금피크제 — 피크 ${values.peakStartYear}년차, 감액 ${values.peakCutRate}%, 이후 상승률 ${values.peakPostGrowthRate}%`;
   } else if (values.salaryPathMode === "STEP_UP") {
-    salaryScenarioLabel = `단계별 상승 — ${values.stepUpYear}년차 이후 ${values.stepUpRate}% 상승`;
+    salaryScenarioLabel = `승진·호봉 점프 — ${values.stepUpYear}년차 이후 ${values.stepUpRate}% 상승`;
+  } else if (values.salaryPathMode === "YEARLY_CUSTOM") {
+    const n = input.remainingServiceYears;
+    const nums = values.yearlySalaries
+      .map(parseKRWInput)
+      .filter((x): x is number => x !== null && x > 0);
+    salaryScenarioLabel =
+      `연도별 직접 입력 — ${n}년치` +
+      (nums.length > 0
+        ? ` (첫 ${formatKRW(nums[0])} / 마지막 ${formatKRW(nums[nums.length - 1])})`
+        : "");
   } else {
     salaryScenarioLabel = "기본 (일정 상승)";
   }
