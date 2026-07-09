@@ -17,6 +17,8 @@
 | 통합 QA | `pnpm qa` | test && lint && build && e2e 전부 통과 |
 
 - 4-gate 중 하나라도 실패 시 배포 불가.
+- GitHub Actions CI green: master push/PR 시 `.github/workflows/ci.yml`이 `pnpm qa`를 자동 실행한다 (PR 16A).
+
 - `package.json` scripts 기준:
   - `dev`: next dev
   - `build`: next build
@@ -179,3 +181,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-08 | E2E 게이트 추가 (PR 14) | Playwright 자동화 33건 추가, `pnpm e2e`/`pnpm qa` 게이트 도입 |
 | 2026-07-08 | 4.7 YEARLY_CUSTOM N/A/Deferred (방침 B) | v0.1.0 UI 미노출. 엔진·단위 테스트는 지원. UI 노출은 PR 15 후보. v0.1.0 차단 아님 |
 | 2026-07-09 | 4.7 active 전환 (PR 15B/15C) | YEARLY_CUSTOM UI 노출·검증·인쇄 요약·공유 안내·E2E 5건 추가. `[x] N/A` → active `[ ]` 복구 |
+| 2026-07-09 | GitHub Actions CI 추가 (PR 16A) | master push/PR 시 `pnpm qa` 자동 실행, `.github/workflows/ci.yml` |

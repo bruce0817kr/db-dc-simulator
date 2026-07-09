@@ -75,6 +75,29 @@ pnpm build && pnpm start  # 프로덕션 빌드 QA
 
 > `pnpm start`는 `package.json`의 `start` script(`next start`) 존재를 확인한 뒤 문서화했다. 프로덕션 빌드 QA는 이 script를 사용한다.
 
+## 6-1. CI 게이트 (GitHub Actions) — PR 16A
+
+PR/push마다 `pnpm qa`(test + lint + build + e2e)가 GitHub Actions ubuntu 러너에서 자동 실행된다.
+
+- **워크플로우 파일**: `.github/workflows/ci.yml`
+- **트리거**: `push` to `master`, `pull_request`, `workflow_dispatch`(수동)
+- **런타임**: Node.js 20, pnpm 10
+- **의존성 설치**: `pnpm install --frozen-lockfile` (lockfile drift 시 CI 실패)
+- **Playwright**: `pnpm exec playwright install chromium --with-deps` (chromium + 시스템 라이브러리)
+- **게이트**: `pnpm qa` 단일 실행 (test → lint → build → e2e, 첫 실패에서 정지)
+- **webServer**: 기존 `playwright.config.ts` 그대로 사용 — `pnpm build && pnpm start --port 3001`
+- **artifact**: 실패 시에만 `test-results/` 업로드 (trace/screenshot/video, 보존 14일)
+- **동시성**: PR은 이전 실행 취소, master push는 취소하지 않음 (릴리스 게이트 무결성)
+
+**로컬 재현**:
+
+```bash
+pnpm qa
+```
+
+> CI 자체 검증은 실제 PR/push로 Actions가 실행된 후에만 최종 확인 가능하다. 로컬 `pnpm qa` green은 필요조건이다.
+
+
 ## 7. 배포 후 검증
 
 - [ ] 프로덕션 URL 접속 → 기본 입력 → 결과 표시
@@ -112,3 +135,4 @@ pnpm build && pnpm start  # 프로덕션 빌드 QA
 | 날짜 | 변경 | 비고 |
 |------|------|------|
 | 2026-07-07 | 최초 작성 (PR 13) | 배포 환경·롤백·버전 정책 정리 |
+| 2026-07-09 | CI 게이트 절 추가 (PR 16A) | GitHub Actions `pnpm qa` 자동화, Node 20/pnpm 10/frozen-lockfile |

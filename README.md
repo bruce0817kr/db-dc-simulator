@@ -1,4 +1,5 @@
 # DB/DC 퇴직연금 전환 시뮬레이터
+[![CI](https://github.com/bruce0817kr/db-dc-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/bruce0817kr/db-dc-simulator/actions/workflows/ci.yml)
 
 한국 직장인을 위한 DB/DC 퇴직연금 전환 시뮬레이터.
 DB 유지 vs DC 전환 예상 퇴직급여 비교, 손익분기 연평균 수익률, 민감도, 리스크, 세금/현재가치, 인쇄용 보고서를 제공한다.
@@ -37,6 +38,7 @@ pnpm build    # 프로덕션 빌드 (정적 프리렌더 /)
 pnpm e2e      # Playwright E2E (release QA)
 pnpm qa       # test + lint + build + e2e 통합 게이트
 ```
+> PR/push 시 `pnpm qa`가 GitHub Actions에서 자동 실행됩니다. 워크플로우: `.github/workflows/ci.yml`.
 
 ## 기술 스택
 
