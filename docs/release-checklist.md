@@ -13,7 +13,7 @@
 | Lint | `pnpm lint` | eslint 오류·경고 없음 |
 | Typecheck | `pnpm build` (TS 검사 포함) | Finished TypeScript 성공 |
 | Build | `pnpm build` | 정적 프리렌더 `/` 완료 |
-| E2E | `pnpm e2e` | Playwright 전량 통과 (현재 33건, PR 14) |
+| E2E | `pnpm e2e` | Playwright 전량 통과 (현재 38건, PR 14/15) |
 | 통합 QA | `pnpm qa` | test && lint && build && e2e 전부 통과 |
 
 - 4-gate 중 하나라도 실패 시 배포 불가.
@@ -23,6 +23,7 @@
   - `dev`: next dev
   - `build`: next build
   - `start`: next start
+  - `start:standalone`: node scripts/start-standalone.mjs (standalone 프로덕션 서버, Docker 와 동일 아티팩트)
   - `lint`: eslint
   - `test`: vitest run
   - `e2e`: playwright test
@@ -185,3 +186,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-09 | 4.7 active 전환 (PR 15B/15C) | YEARLY_CUSTOM UI 노출·검증·인쇄 요약·공유 안내·E2E 5건 추가. `[x] N/A` → active `[ ]` 복구 |
 | 2026-07-09 | GitHub Actions CI 추가 (PR 16A) | master push/PR 시 `pnpm qa` 자동 실행, `.github/workflows/ci.yml` |
 | 2026-07-10 | Docker smoke check 추가 (PR 16B) | `docker compose` 배포 검증 항목 (200/non-root/로그) |
+| 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA → standalone 서버(`pnpm start:standalone`). `next start` 경고 제거, Docker 와 동일 아티팩트 검증. E2E 38건, scripts 목록 갱신 |
