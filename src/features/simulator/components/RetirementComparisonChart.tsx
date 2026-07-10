@@ -13,6 +13,7 @@ import {
   getSeriesLabelPositions,
   scaleValue,
 } from "../utils/chartData";
+import { RETIREMENT_CHART_LAYOUT as CHART } from "../utils/chartLayout";
 import { getBreakevenMessage, getCurrentRateMessage } from "../utils/chartMessages";
 import { formatKRWCompact, formatPercent } from "../utils/formatters";
 
@@ -21,15 +22,6 @@ type RetirementComparisonChartProps = {
   readonly result: SimulationResult;
   readonly matrix: SensitivityMatrix;
 };
-
-const CHART = {
-  width: 720,
-  height: 320,
-  left: 84,
-  right: 110,
-  top: 42,
-  bottom: 52,
-} as const;
 
 export function RetirementComparisonChart({ input, result, matrix }: RetirementComparisonChartProps) {
   const titleId = useId();
