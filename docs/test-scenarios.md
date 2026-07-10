@@ -342,6 +342,9 @@ iterations: 1000
 - 공유 버튼 클릭 → `clipboard.writeText` 호출
 - URL에 `salary=80000000`, `method=TRANSFER_ALL_TO_DC` 포함
 - 개인정보 문구 렌더
+- 고급 임금 설정 활성화 시 옵트인 기본 미선택
+- 미선택 URL에는 고급 파라미터 미포함
+- 선택 URL에는 `advanced=1`과 활성 모드 파라미터 포함, 새 페이지에서 복원
 
 자동화 매핑: `SimulatorPage.test.tsx` — `(e)`, `(f)`
 
