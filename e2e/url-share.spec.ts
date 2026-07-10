@@ -49,4 +49,39 @@ test.describe("4.14 URL 공유 복원", () => {
     await expect(page2.getByText(TEXTS.dcCard)).toBeVisible();
     await page2.close();
   });
+
+  test("고급 임금 설정 옵트인 → 연도별 연봉과 평균임금 복원", async ({ browser }) => {
+    const page1 = await browser.newPage();
+    await page1.goto("/");
+    await page1.getByLabel("남은 근속연수").fill("2");
+    await page1.locator("summary", { hasText: "고급 임금 시나리오" }).click();
+    await page1.getByLabel("임금 경로 모드").selectOption("YEARLY_CUSTOM");
+    await page1.getByLabel("평균임금 직접 입력 (선택)").fill("90000000");
+
+    const optIn = page1.getByRole("checkbox", {
+      name: "고급 임금 설정도 공유 링크에 포함",
+    });
+    await expect(optIn).not.toBeChecked();
+    await optIn.check();
+    await page1.getByRole("button", { name: TEXTS.shareButton }).click();
+
+    const url = await page1.evaluate(() => navigator.clipboard.readText());
+    const params = new URL(url).searchParams;
+    expect(params.get("advanced")).toBe("1");
+    expect(params.get("salaryMode")).toBe("YEARLY_CUSTOM");
+    expect(params.get("salaries")).toBe("82400000,84872000");
+    expect(params.get("dbAverageSalary")).toBe("90000000");
+    await page1.close();
+
+    const page2 = await browser.newPage();
+    await page2.goto(url);
+    await page2.locator("summary", { hasText: "고급 임금 시나리오" }).click();
+    await expect(page2.getByLabel("임금 경로 모드")).toHaveValue("YEARLY_CUSTOM");
+    await expect(page2.getByLabel("1년차 연봉")).toHaveValue("82,400,000");
+    await expect(page2.getByLabel("2년차 연봉")).toHaveValue("84,872,000");
+    await expect(page2.getByLabel("평균임금 직접 입력 (선택)")).toHaveValue(
+      "90,000,000"
+    );
+    await page2.close();
+  });
 });

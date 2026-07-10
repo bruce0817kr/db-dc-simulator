@@ -106,6 +106,97 @@ describe("buildShareUrl URL 구조", () => {
   });
 });
 
+describe("고급 임금 설정 옵트인", () => {
+  it("고급 설정이 있어도 기본 공유에는 포함하지 않음", () => {
+    const values: SimulatorFormValues = {
+      ...BASE_VALUES,
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["82,400,000", "84,872,000"],
+      dbAverageSalary: "90,000,000",
+      remainingYearsOfService: "2",
+    };
+
+    const url = buildShareUrl(values, "https://example.com");
+
+    expect(url).not.toContain("advanced=");
+    expect(url).not.toContain("salaryMode=");
+    expect(url).not.toContain("salaries=");
+    expect(url).not.toContain("dbAverageSalary=");
+  });
+
+  it("YEARLY_CUSTOM 옵트인 → 연도별 연봉과 평균임금 왕복", () => {
+    const values: SimulatorFormValues = {
+      ...BASE_VALUES,
+      salaryPathMode: "YEARLY_CUSTOM",
+      yearlySalaries: ["82,400,000", "84,872,000"],
+      dbAverageSalary: "90,000,000",
+      remainingYearsOfService: "2",
+    };
+
+    const url = buildShareUrl(values, "https://example.com", { includeAdvanced: true });
+    const parsed = parseSearchToFormValues(new URL(url).search);
+
+    expect(parsed.salaryPathMode).toBe("YEARLY_CUSTOM");
+    expect(parsed.yearlySalaries).toEqual(["82,400,000", "84,872,000"]);
+    expect(parsed.dbAverageSalary).toBe("90,000,000");
+  });
+
+  it("WAGE_PEAK과 STEP_UP은 각 모드에 필요한 값만 왕복", () => {
+    const wagePeak = buildShareUrl(
+      {
+        ...BASE_VALUES,
+        salaryPathMode: "WAGE_PEAK",
+        peakStartYear: "7",
+        peakCutRate: "20",
+        peakPostGrowthRate: "0",
+        stepUpYear: "5",
+        stepUpRate: "10",
+      },
+      "https://example.com",
+      { includeAdvanced: true }
+    );
+    const stepUp = buildShareUrl(
+      {
+        ...BASE_VALUES,
+        salaryPathMode: "STEP_UP",
+        peakStartYear: "7",
+        peakCutRate: "20",
+        peakPostGrowthRate: "0",
+        stepUpYear: "5",
+        stepUpRate: "10",
+      },
+      "https://example.com",
+      { includeAdvanced: true }
+    );
+
+    expect(wagePeak).toContain("peakStart=7");
+    expect(wagePeak).not.toContain("stepUpYear=");
+    expect(parseSearchToFormValues(new URL(wagePeak).search)).toMatchObject({
+      salaryPathMode: "WAGE_PEAK",
+      peakStartYear: "7",
+      peakCutRate: "20",
+      peakPostGrowthRate: "0",
+    });
+    expect(stepUp).toContain("stepUpYear=5");
+    expect(stepUp).not.toContain("peakStart=");
+    expect(parseSearchToFormValues(new URL(stepUp).search)).toMatchObject({
+      salaryPathMode: "STEP_UP",
+      stepUpYear: "5",
+      stepUpRate: "10",
+    });
+  });
+
+  it("advanced=1 없는 고급 파라미터는 복원하지 않음", () => {
+    const parsed = parseSearchToFormValues(
+      "?salaryMode=YEARLY_CUSTOM&salaries=82400000%2C84872000&dbAverageSalary=90000000"
+    );
+
+    expect(parsed.salaryPathMode).toBeUndefined();
+    expect(parsed.yearlySalaries).toBeUndefined();
+    expect(parsed.dbAverageSalary).toBeUndefined();
+  });
+});
+
 describe("volatility 왕복", () => {
   it("dcVolatility '12' 직렬화 후 복원", () => {
     const url = buildShareUrl(BASE_VALUES, "https://example.com");
