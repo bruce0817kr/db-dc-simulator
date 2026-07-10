@@ -4,6 +4,7 @@ import {
   buildRetirementComparisonChartData,
   createAmountScale,
   getRateRangeStatus,
+  getSeriesDirectionDescription,
   scaleValue,
 } from "./chartData";
 
@@ -43,9 +44,21 @@ describe("chartData", () => {
     const data = buildRetirementComparisonChartData(matrix);
 
     expect(data).toEqual([
-      { dcReturnRate: 0, dbExpectedAmount: 210_000_000, dcExpectedAmount: 180_000_000 },
-      { dcReturnRate: 0.01, dbExpectedAmount: 210_000_000, dcExpectedAmount: 192_000_000 },
-      { dcReturnRate: 0.02, dbExpectedAmount: 210_000_000, dcExpectedAmount: 205_000_000 },
+      {
+        dcReturnRate: 0,
+        dbExpectedAmount: 210_000_000,
+        dcExpectedAmount: 180_000_000,
+      },
+      {
+        dcReturnRate: 0.01,
+        dbExpectedAmount: 210_000_000,
+        dcExpectedAmount: 192_000_000,
+      },
+      {
+        dcReturnRate: 0.02,
+        dbExpectedAmount: 210_000_000,
+        dcExpectedAmount: 205_000_000,
+      },
     ]);
     expect(matrix.dcReturnRates).toEqual([0.02, 0, 0.01]);
   });
@@ -59,8 +72,14 @@ describe("chartData", () => {
 
   it("동일한 금액만 있어도 유한한 세로축과 좌표를 만든다", () => {
     const scale = createAmountScale([
-      { dcReturnRate: 0, dbExpectedAmount: 100_000_000, dcExpectedAmount: 100_000_000 },
+      {
+        dcReturnRate: 0,
+        dbExpectedAmount: 100_000_000,
+        dcExpectedAmount: 100_000_000,
+      },
     ]);
+
+    if (scale === null) throw new Error("유효한 데이터에는 금액 축이 필요합니다.");
 
     expect(scale.minimum).toBe(0);
     expect(scale.maximum).toBeGreaterThan(100_000_000);
@@ -79,5 +98,32 @@ describe("chartData", () => {
 
   it("빈 데이터에는 축을 만들지 않는다", () => {
     expect(createAmountScale([])).toBeNull();
+  });
+
+  it("DB/DC 계열의 증가, 감소, 동일 방향을 설명한다", () => {
+    expect(
+      getSeriesDirectionDescription([
+        { dcReturnRate: 0, dbExpectedAmount: 200, dcExpectedAmount: 100 },
+        { dcReturnRate: 0.08, dbExpectedAmount: 200, dcExpectedAmount: 300 },
+      ])
+    ).toBe("DB 예상액은 수익률 구간에서 동일합니다. DC 예상액은 수익률이 높아질수록 증가합니다.");
+    expect(
+      getSeriesDirectionDescription([
+        { dcReturnRate: 0, dbExpectedAmount: 200, dcExpectedAmount: 300 },
+        { dcReturnRate: 0.08, dbExpectedAmount: 100, dcExpectedAmount: 200 },
+      ])
+    ).toContain("감소합니다");
+  });
+
+  it("유한 범위를 만들 수 없는 극단값은 축 생성을 중단한다", () => {
+    expect(
+      createAmountScale([
+        {
+          dcReturnRate: 0,
+          dbExpectedAmount: Number.MAX_VALUE,
+          dcExpectedAmount: 1,
+        },
+      ])
+    ).toBeNull();
   });
 });

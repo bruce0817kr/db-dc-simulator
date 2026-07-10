@@ -9,7 +9,7 @@
 
 | 게이트 | 명령 | 기준 |
 |--------|------|------|
-| Test | `pnpm test` | 전량 통과 (현재 291건) |
+| Test | `pnpm test` | 전량 통과 (현재 294건) |
 | Lint | `pnpm lint` | eslint 오류·경고 없음 |
 | Typecheck | `pnpm build` (TS 검사 포함) | Finished TypeScript 성공 |
 | Build | `pnpm build` | 정적 프리렌더 `/` 완료 |
@@ -191,4 +191,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-10 | Docker smoke check 추가 (PR 16B) | `docker compose` 배포 검증 항목 (200/non-root/로그) |
 | 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA → standalone 서버(`pnpm start:standalone`). `next start` 경고 제거, Docker 와 동일 아티팩트 검증. E2E 38건, scripts 목록 갱신 |
 | 2026-07-10 | URL 공유 고급 설정 옵트인 (PR 17) | 기본 미포함, 매 공유 재동의, 손상 URL 폴백, 80년·8KB 상한. 단위·컴포넌트 283건, E2E 40건 |
-| 2026-07-10 | DB/DC 민감도 차트 (PR 18) | 네이티브 SVG, 표 병행, 색상 외 구분, 375/768/1280·인쇄·axe 검증. 단위·컴포넌트 291건, E2E 48건 |
+| 2026-07-10 | DB/DC 민감도 차트 (PR 18) | 네이티브 SVG, 표 병행, 색상 외 구분, 375/768/1280·인쇄·axe 검증. 단위·컴포넌트 294건, E2E 49건 |

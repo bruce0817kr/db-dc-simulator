@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from "vitest";
+
 import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import type { SensitivityMatrix } from "@/src/calculator/sensitivity";
 import type { SimulationInput, SimulationResult } from "@/src/calculator/types";
 import { RetirementComparisonChart } from "./RetirementComparisonChart";
@@ -58,20 +59,19 @@ describe("RetirementComparisonChart", () => {
   it("접근 가능한 차트 이름과 설명, 두 계열의 직접 라벨을 표시한다", () => {
     render(<RetirementComparisonChart input={input} result={result} matrix={matrix} />);
 
-    expect(
-      screen.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })
-    ).toBeTruthy();
+    expect(screen.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })).toBeTruthy();
     expect(screen.getByText("DB 예상액", { exact: true })).toBeTruthy();
     expect(screen.getByText("DC 예상액", { exact: true })).toBeTruthy();
     expect(screen.getByText("손익분기 약 3.2%", { exact: true })).toBeTruthy();
     expect(screen.getByText("현재 입력 4.0%", { exact: true })).toBeTruthy();
+    expect(document.querySelector("desc")?.textContent).toContain(
+      "DB 예상액은 수익률 구간에서 동일합니다. DC 예상액은 수익률이 높아질수록 증가합니다."
+    );
     expect(screen.getByText(/확정 수익이나 운용성과를 보장하지 않습니다/)).toBeTruthy();
   });
 
   it("DB와 DC 계열을 색상 외 선과 점 모양으로 구분한다", () => {
-    const { container } = render(
-      <RetirementComparisonChart input={input} result={result} matrix={matrix} />
-    );
+    const { container } = render(<RetirementComparisonChart input={input} result={result} matrix={matrix} />);
 
     expect(container.querySelector('[data-series="DB"]')?.getAttribute("stroke-dasharray")).toBe("8 6");
     expect(container.querySelectorAll('circle[data-point-series="DB"]')).toHaveLength(3);
@@ -88,9 +88,7 @@ describe("RetirementComparisonChart", () => {
       />
     );
 
-    expect(
-      screen.getByText("손익분기 수익률이 표시 범위(0~8%)보다 높습니다.")
-    ).toBeTruthy();
+    expect(screen.getByText("손익분기 수익률이 표시 범위(0~8%)보다 높습니다.")).toBeTruthy();
     expect(screen.getByText("현재 입력 수익률은 표시 범위 밖입니다.")).toBeTruthy();
     expect(screen.queryByText(/현재 입력 12/)).toBeNull();
   });
@@ -106,8 +104,27 @@ describe("RetirementComparisonChart", () => {
 
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.getByText("차트로 표시할 민감도 데이터가 없습니다.")).toBeTruthy();
-    expect(
-      screen.getByText("입력하신 조건에서는 손익분기 수익률을 계산할 수 없습니다.")
-    ).toBeTruthy();
+    expect(screen.getByText("입력하신 조건에서는 손익분기 수익률을 계산할 수 없습니다.")).toBeTruthy();
+  });
+
+  it("마지막 DB/DC 금액이 가까우면 직접 라벨을 서로 다른 높이에 배치한다", () => {
+    const { container } = render(
+      <RetirementComparisonChart
+        input={input}
+        result={result}
+        matrix={{
+          ...matrix,
+          points: matrix.points.map((point) => ({
+            ...point,
+            dbExpectedAmount: 250_000_000,
+            dcExpectedAmount: 250_000_000,
+          })),
+        }}
+      />
+    );
+
+    const dbY = container.querySelector('[data-chart-label="db-series"]')?.getAttribute("y");
+    const dcY = container.querySelector('[data-chart-label="dc-series"]')?.getAttribute("y");
+    expect(dbY).not.toBe(dcY);
   });
 });

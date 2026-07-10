@@ -9,6 +9,7 @@ import {
   CHART_RETURN_RATE_MINIMUM,
   createAmountScale,
   getRateRangeStatus,
+  getSeriesDirectionDescription,
   scaleValue,
 } from "../utils/chartData";
 import { getBreakevenMessage, getCurrentRateMessage } from "../utils/chartMessages";
@@ -24,16 +25,12 @@ const CHART = {
   width: 720,
   height: 320,
   left: 84,
-  right: 74,
+  right: 110,
   top: 42,
   bottom: 52,
 } as const;
 
-export function RetirementComparisonChart({
-  input,
-  result,
-  matrix,
-}: RetirementComparisonChartProps) {
+export function RetirementComparisonChart({ input, result, matrix }: RetirementComparisonChartProps) {
   const titleId = useId();
   const descriptionId = useId();
   const data = buildRetirementComparisonChartData(matrix);
@@ -76,12 +73,17 @@ export function RetirementComparisonChart({
   const dbPoints = data.map((datum) => `${x(datum.dcReturnRate)},${y(datum.dbExpectedAmount)}`).join(" ");
   const dcPoints = data.map((datum) => `${x(datum.dcReturnRate)},${y(datum.dcExpectedAmount)}`).join(" ");
   const axisRates = [0, 0.02, 0.04, 0.06, 0.08] as const;
-  const description = `DC 수익률 0%부터 8%까지의 DB와 DC 예상 퇴직급여 비교입니다. ${breakevenMessage} ${currentRateMessage}`;
+  const directionDescription = getSeriesDirectionDescription(data);
+  const description = `DC 수익률 0%부터 8%까지의 DB와 DC 예상 퇴직급여 비교입니다. ${directionDescription} ${breakevenMessage} ${currentRateMessage}`;
+  const dbLabelY = y(lastDatum.dbExpectedAmount);
+  const dcLabelY = y(lastDatum.dcExpectedAmount);
+  const labelsOverlap = Math.abs(dbLabelY - dcLabelY) < 20;
 
   return (
     <figure className="break-inside-avoid rounded-lg border border-gray-200 bg-white p-2 sm:p-4">
       <svg
-        className="min-h-60 w-full"
+        className="w-full"
+        height={CHART.height}
         viewBox={`0 0 ${CHART.width} ${CHART.height}`}
         role="img"
         aria-labelledby={titleId}
@@ -91,7 +93,7 @@ export function RetirementComparisonChart({
         <title id={titleId}>DB/DC 예상 퇴직급여 비교 차트</title>
         <desc id={descriptionId}>{description}</desc>
 
-        <g aria-hidden="true">
+        <g aria-hidden="true" focusable="false">
           {amountScale.ticks.map((tick) => (
             <g key={tick}>
               <line
@@ -99,14 +101,10 @@ export function RetirementComparisonChart({
                 x2={plotRight}
                 y1={y(tick)}
                 y2={y(tick)}
-                className="stroke-gray-200" vectorEffect="non-scaling-stroke"
+                className="stroke-gray-200"
+                vectorEffect="non-scaling-stroke"
               />
-              <text
-                x={CHART.left - 12}
-                y={y(tick) + 4}
-                textAnchor="end"
-                className="fill-gray-500 text-lg sm:text-xs"
-              >
+              <text x={CHART.left - 12} y={y(tick) + 4} textAnchor="end" className="fill-gray-500 text-lg sm:text-xs">
                 {formatKRWCompact(tick)}
               </text>
             </g>
@@ -116,7 +114,8 @@ export function RetirementComparisonChart({
             x2={plotRight}
             y1={plotBottom}
             y2={plotBottom}
-            className="stroke-gray-400" vectorEffect="non-scaling-stroke"
+            className="stroke-gray-400"
+            vectorEffect="non-scaling-stroke"
           />
           {axisRates.map((rate) => (
             <g key={rate}>
@@ -125,14 +124,10 @@ export function RetirementComparisonChart({
                 x2={x(rate)}
                 y1={plotBottom}
                 y2={plotBottom + 5}
-                className="stroke-gray-400" vectorEffect="non-scaling-stroke"
+                className="stroke-gray-400"
+                vectorEffect="non-scaling-stroke"
               />
-              <text
-                x={x(rate)}
-                y={plotBottom + 22}
-                textAnchor="middle"
-                className="fill-gray-600 text-xl sm:text-xs"
-              >
+              <text x={x(rate)} y={plotBottom + 22} textAnchor="middle" className="fill-gray-600 text-xl sm:text-xs">
                 {formatPercent(rate, 0)}
               </text>
             </g>
@@ -155,9 +150,11 @@ export function RetirementComparisonChart({
               y1={CHART.top}
               y2={plotBottom}
               className="stroke-gray-700"
-              strokeDasharray="4 5" vectorEffect="non-scaling-stroke"
+              strokeDasharray="4 5"
+              vectorEffect="non-scaling-stroke"
             />
             <text
+              data-chart-label="breakeven"
               x={x(breakevenStatus.value) + 6}
               y={CHART.top + 14}
               className="fill-gray-700 text-lg font-semibold sm:text-xs"
@@ -173,7 +170,8 @@ export function RetirementComparisonChart({
           fill="none"
           className="stroke-amber-700"
           strokeWidth="2"
-          strokeDasharray="8 6" vectorEffect="non-scaling-stroke"
+          strokeDasharray="8 6"
+          vectorEffect="non-scaling-stroke"
         />
         {data.map((datum) => (
           <circle
@@ -183,12 +181,14 @@ export function RetirementComparisonChart({
             cy={y(datum.dbExpectedAmount)}
             r="3.5"
             className="fill-white stroke-amber-700"
-            strokeWidth="2" vectorEffect="non-scaling-stroke"
+            strokeWidth="2"
+            vectorEffect="non-scaling-stroke"
           />
         ))}
         <text
+          data-chart-label="db-series"
           x={plotRight + 8}
-          y={y(lastDatum.dbExpectedAmount) + 4}
+          y={dbLabelY + (labelsOverlap ? -8 : 4)}
           className="fill-amber-700 text-xl font-semibold sm:text-xs"
         >
           DB 예상액
@@ -199,7 +199,8 @@ export function RetirementComparisonChart({
           points={dcPoints}
           fill="none"
           className="stroke-blue-700"
-          strokeWidth="2" vectorEffect="non-scaling-stroke"
+          strokeWidth="2"
+          vectorEffect="non-scaling-stroke"
         />
         {data.map((datum) => (
           <rect
@@ -210,12 +211,14 @@ export function RetirementComparisonChart({
             width="7"
             height="7"
             className="fill-white stroke-blue-700"
-            strokeWidth="2" vectorEffect="non-scaling-stroke"
+            strokeWidth="2"
+            vectorEffect="non-scaling-stroke"
           />
         ))}
         <text
+          data-chart-label="dc-series"
           x={plotRight + 8}
-          y={y(lastDatum.dcExpectedAmount) + 4}
+          y={dcLabelY + (labelsOverlap ? 14 : 4)}
           className="fill-blue-700 text-xl font-semibold sm:text-xs"
         >
           DC 예상액
@@ -228,9 +231,11 @@ export function RetirementComparisonChart({
               cy={y(result.dcAmount)}
               r="6"
               className="fill-white stroke-blue-700"
-              strokeWidth="3" vectorEffect="non-scaling-stroke"
+              strokeWidth="3"
+              vectorEffect="non-scaling-stroke"
             />
             <text
+              data-chart-label="current-rate"
               x={x(currentRateStatus.value)}
               y={y(result.dcAmount) - 12}
               textAnchor="middle"
@@ -249,7 +254,8 @@ export function RetirementComparisonChart({
         </div>
       )}
       <figcaption className="mt-2 px-2 text-xs text-gray-500">
-        입력하신 조건과 현재 임금상승률을 기준으로 한 세전 시뮬레이션입니다. 선은 확정 수익이나 운용성과를 보장하지 않습니다.
+        입력하신 조건과 현재 임금상승률을 기준으로 한 세전 시뮬레이션입니다. 선은 확정 수익이나 운용성과를 보장하지
+        않습니다.
       </figcaption>
     </figure>
   );

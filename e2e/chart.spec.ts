@@ -5,16 +5,20 @@ test.describe("PR 18 DB/DC 민감도 차트", () => {
   test("기본 입력에서 차트와 정확한 수치 표를 함께 표시한다", async ({ page }) => {
     await page.goto("/");
 
-    const chart = page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" });
+    const chart = page.getByRole("img", {
+      name: "DB/DC 예상 퇴직급여 비교 차트",
+    });
     await expect(chart).toBeVisible();
     await expect(chart.locator('[data-point-series="DB"]')).toHaveCount(9);
     await expect(chart.locator('[data-point-series="DC"]')).toHaveCount(9);
     await expect(chart.locator("text").filter({ hasText: /^손익분기 약/ })).toBeVisible();
     await expect(chart.locator("text").filter({ hasText: /^현재 입력 5.0%$/ })).toBeVisible();
 
-    const section = page.getByRole("heading", {
-      name: "수익률별 결과 (현재 임금상승률 기준)",
-    }).locator("..");
+    const section = page
+      .getByRole("heading", {
+        name: "수익률별 결과 (현재 임금상승률 기준)",
+      })
+      .locator("..");
     await expect(section.locator("table")).toBeVisible();
   });
 
@@ -29,10 +33,21 @@ test.describe("PR 18 DB/DC 민감도 차트", () => {
     await page.goto("/");
     await page.getByLabel(LABELS.dcReturnRate).fill("12");
 
-    await expect(
-      page.getByText("현재 입력 수익률은 표시 범위 밖입니다.", { exact: true })
-    ).toBeVisible();
+    await expect(page.getByText("현재 입력 수익률은 표시 범위 밖입니다.", { exact: true })).toBeVisible();
     await expect(page.getByText(/현재 입력 12/)).toHaveCount(0);
+  });
+
+  test("손익분기 수익률이 범위 밖이면 차트 대신 상태를 안내한다", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel(LABELS.conversionMethod).selectOption("CUSTOM_TRANSFER_AMOUNT");
+    await page.getByLabel(LABELS.customTransferAmount).fill("0");
+
+    await expect(
+      page.getByText("손익분기 수익률이 표시 범위(0~8%)보다 높습니다.", {
+        exact: true,
+      })
+    ).toBeVisible();
+    await expect(page.locator('[data-chart-label="breakeven"]')).toHaveCount(0);
   });
 
   for (const width of [375, 768, 1280]) {
@@ -40,12 +55,29 @@ test.describe("PR 18 DB/DC 민감도 차트", () => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
 
-      const chart = page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" });
+      const chart = page.getByRole("img", {
+        name: "DB/DC 예상 퇴직급여 비교 차트",
+      });
       await expect(chart).toBeVisible();
       const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth
       );
       expect(hasHorizontalOverflow).toBe(false);
+
+      const labelsFit = await chart.evaluate((svg) => {
+        const svgBounds = svg.getBoundingClientRect();
+        return [...svg.querySelectorAll("[data-chart-label]")].every((label) => {
+          const bounds = label.getBoundingClientRect();
+          return (
+            bounds.left >= svgBounds.left - 1 &&
+            bounds.right <= svgBounds.right + 1 &&
+            bounds.top >= svgBounds.top - 1 &&
+            bounds.bottom <= svgBounds.bottom + 1
+          );
+        });
+      });
+      expect(labelsFit).toBe(true);
+      expect((await chart.boundingBox())?.height).toBeGreaterThanOrEqual(240);
     });
   }
 
@@ -53,13 +85,9 @@ test.describe("PR 18 DB/DC 민감도 차트", () => {
     await page.goto("/");
     await page.emulateMedia({ media: "print" });
 
+    await expect(page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })).toBeVisible();
     await expect(
-      page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "수익률별 결과 (현재 임금상승률 기준)" })
-        .locator("..")
-        .locator("table")
+      page.getByRole("heading", { name: "수익률별 결과 (현재 임금상승률 기준)" }).locator("..").locator("table")
     ).toBeVisible();
   });
 

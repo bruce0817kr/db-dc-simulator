@@ -9,13 +9,13 @@
 
 ## 자동 검증
 
-- `pnpm test`: 291/291 passed
+- `pnpm test`: 294/294 passed
 - `pnpm lint`: clean
 - `pnpm build`: success
-- `pnpm e2e`: 48/48 passed
-- 차트 전용 E2E: 8/8 passed
+- `pnpm e2e`: 49/49 passed
+- 차트 전용 E2E: 9/9 passed
 - axe WCAG 2.1 A/AA critical·serious 위반 0건 (`color-contrast` 기존 제외 정책 유지)
-- 375px, 768px, 1280px 가로 오버플로 0건
+- 375px, 768px, 1280px 가로 오버플로·SVG 라벨 잘림 0건, 차트 높이 240px 이상
 - 인쇄 미디어에서 차트와 정확한 수치 표 표시
 - 입력 변경 중 console error·page error 0건
 
@@ -27,7 +27,8 @@ BrowserOS로 standalone 프로덕션 서버를 직접 확인했다.
 - DC 수익률 7%: `현재 입력 7.0%` 표식으로 즉시 갱신
 - DC 수익률 12%: 축 끝으로 왜곡하지 않고 표식을 제거한 뒤 범위 밖 안내 표시
 - 페이지 가로 오버플로 없음
-- 375px 실제 캡처에서 발견한 SVG 글자·선 축소를 모바일 글자 보정과 `non-scaling-stroke`로 수정 후 재확인
+- 375px 실제 캡처에서 발견한 SVG 글자·선 축소를 모바일 글자 보정, 240px 최소 높이와 `non-scaling-stroke`로 수정 후 재확인
+- 스크린 리더 설명에 DB/DC 변화 방향을 포함하고, 근접한 직접 라벨의 충돌을 분리 배치
 - Git Bash의 자동 `HOSTNAME` 주입으로 Playwright가 loopback 서버를 찾지 못하는 현상을 런타임 로그로 확인하고, 로컬 실행기를 `STANDALONE_HOSTNAME` 전용 설정으로 분리한 뒤 `pnpm qa` 재통과
 
 ## 범위 준수
