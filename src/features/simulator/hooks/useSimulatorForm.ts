@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { simulate, PORTFOLIO_PRESETS, netReturnRate, buildSalaryPath } from "@/src/calculator";
 import { SimulationResult } from "@/src/calculator/types";
 import { MAX_REMAINING_YEARS, SimulatorFormValues, SalaryPathModeUI } from "../types";
@@ -85,6 +85,10 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     const r = simulate(input);
     return [r.dbAmount, r.dcAmount, r.difference].every(Number.isFinite) ? r : null;
   }, [input]);
+
+  const restoreValues = useCallback((restoredValues: Partial<SimulatorFormValues>) => {
+    setValues({ ...DEFAULT_FORM_VALUES, ...restoredValues });
+  }, []);
 
   function onChange(field: keyof SimulatorFormValues, value: string) {
     if (field === "dcReturnRate" && values.portfolioPresetId !== "CUSTOM") {
@@ -200,5 +204,6 @@ export function useSimulatorForm(initialValues?: Partial<SimulatorFormValues>) {
     onToggleDisplay,
     setYearlySalary,
     fillYearlyFromBaseline,
+    restoreValues,
   };
 }

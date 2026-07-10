@@ -1,6 +1,15 @@
 import { test, expect } from "@playwright/test";
 import { LABELS, TEXTS } from "./utils";
 
+function captureRuntimeErrors(page: import("@playwright/test").Page): string[] {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+  return errors;
+}
+
 /**
  * manual-qa.md 4.14 URL 공유 복원.
  * 자동화: e2e/url-share.spec.ts
@@ -41,6 +50,7 @@ test.describe("4.14 URL 공유 복원", () => {
 
     // 신규 컨텍스트에서 URL 로드 → 복원
     const page2 = await browser.newPage();
+    const runtimeErrors = captureRuntimeErrors(page2);
     await page2.goto(url);
 
     await expect(page2.getByLabel(LABELS.currentSalary)).toHaveValue(/80,000,000/);
@@ -48,6 +58,7 @@ test.describe("4.14 URL 공유 복원", () => {
     await expect(page2.getByLabel(LABELS.remainingYearsOfService)).toHaveValue("15");
     await expect(page2.getByText(TEXTS.dbCard)).toBeVisible();
     await expect(page2.getByText(TEXTS.dcCard)).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
     await page2.close();
   });
 
@@ -75,6 +86,7 @@ test.describe("4.14 URL 공유 복원", () => {
     await page1.close();
 
     const page2 = await browser.newPage();
+    const runtimeErrors = captureRuntimeErrors(page2);
     await page2.goto(url);
     await page2.locator("summary", { hasText: "고급 임금 시나리오" }).click();
     await expect(page2.getByLabel("임금 경로 모드")).toHaveValue("YEARLY_CUSTOM");
@@ -83,10 +95,12 @@ test.describe("4.14 URL 공유 복원", () => {
     await expect(page2.getByLabel("평균임금 직접 입력 (선택)")).toHaveValue(
       "90,000,000"
     );
+    expect(runtimeErrors).toEqual([]);
     await page2.close();
   });
 
   test("손상되거나 과도한 고급 URL → 기본 모드로 안전하게 폴백", async ({ page }) => {
+    const runtimeErrors = captureRuntimeErrors(page);
     await page.goto(
       "/?remainingYears=1000000&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000%2C%2C84872000"
     );
@@ -95,5 +109,6 @@ test.describe("4.14 URL 공유 복원", () => {
     await page.locator("summary", { hasText: "고급 임금 시나리오" }).click();
     await expect(page.getByLabel("임금 경로 모드")).toHaveValue("CONSTANT_GROWTH");
     await expect(page.getByText(TEXTS.dbCard)).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
   });
 });
