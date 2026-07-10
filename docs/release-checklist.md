@@ -151,6 +151,8 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 - [ ] 의존성 추가 없음 (next, react, react-dom + devDeps 유지)
 - [ ] 차트 라이브러리 미사용
 - [ ] 외부 금융 API 미연동
+- [ ] Docker smoke (PR 16B): `docker compose up -d` → `127.0.0.1:3000` 200 응답 + `docker compose exec db-dc-simulator id` non-root(uid 1001) + 로그 치명 에러 0건
+
 
 ## 9. 데이터 처리
 
@@ -182,3 +184,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-08 | 4.7 YEARLY_CUSTOM N/A/Deferred (방침 B) | v0.1.0 UI 미노출. 엔진·단위 테스트는 지원. UI 노출은 PR 15 후보. v0.1.0 차단 아님 |
 | 2026-07-09 | 4.7 active 전환 (PR 15B/15C) | YEARLY_CUSTOM UI 노출·검증·인쇄 요약·공유 안내·E2E 5건 추가. `[x] N/A` → active `[ ]` 복구 |
 | 2026-07-09 | GitHub Actions CI 추가 (PR 16A) | master push/PR 시 `pnpm qa` 자동 실행, `.github/workflows/ci.yml` |
+| 2026-07-10 | Docker smoke check 추가 (PR 16B) | `docker compose` 배포 검증 항목 (200/non-root/로그) |

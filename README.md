@@ -40,6 +40,20 @@ pnpm qa       # test + lint + build + e2e 통합 게이트
 ```
 > PR/push 시 `pnpm qa`가 GitHub Actions에서 자동 실행됩니다. 워크플로우: `.github/workflows/ci.yml`.
 
+## Docker로 실행 (self-host)
+
+Docker가 설치된 서버에서 컨테이너로 실행한다 (Vercel 미사용).
+
+```bash
+docker compose build          # 이미지 빌드 → db-dc-simulator:local
+docker compose up -d          # 백그라운드 실행 → http://127.0.0.1:3000
+docker compose logs -f        # 로그 확인 (Ctrl+C 로 빠져나가기)
+docker compose down           # 정지·제거
+```
+
+> 컨테이너는 `127.0.0.1:3000` 에만 바인딩된다. 외부 공개는 reverse proxy(Nginx/Caddy)로 HTTPS 처리한다.
+> 빌드 산출물·롤백 절차는 `docs/deployment-notes.md` 참조.
+
 ## 기술 스택
 
 - Next.js 16 (App Router)
