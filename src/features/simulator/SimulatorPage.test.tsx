@@ -21,8 +21,8 @@ describe("SimulatorPage", () => {
     ).toBeTruthy();
 
     expect(
-      screen.getByText((text) => text.includes("세전 시뮬레이션입니다"))
-    ).toBeTruthy();
+      screen.getAllByText((text) => text.includes("세전 시뮬레이션입니다")).length
+    ).toBeGreaterThan(0);
   });
 
   it("(b) select를 CUSTOM으로 변경 → 정산금 입력 표시, 되돌리면 숨김", () => {
