@@ -198,17 +198,19 @@ describe("고급 임금 설정 옵트인", () => {
 
   it("필수 필드가 없거나 손상된 고급 모드는 전체를 무시", () => {
     const cases = [
-      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,,84872000",
-      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,0",
-      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000",
-      "?remainingYears=2&advanced=1&salaryMode=WAGE_PEAK&peakStart=1&peakCut=20",
-      "?remainingYears=2&advanced=1&salaryMode=STEP_UP&stepUpYear=1",
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,,84872000&dbAverageSalary=90000000",
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,0&dbAverageSalary=90000000",
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000&dbAverageSalary=90000000",
+      "?remainingYears=2&advanced=1&salaryMode=WAGE_PEAK&peakStart=1&peakCut=20&dbAverageSalary=90000000",
+      "?remainingYears=2&advanced=1&salaryMode=STEP_UP&stepUpYear=1&dbAverageSalary=90000000",
+      "?remainingYears=2&advanced=1&dbAverageSalary=90000000",
     ];
 
     for (const search of cases) {
       const parsed = parseSearchToFormValues(search);
       expect(parsed.salaryPathMode).toBeUndefined();
       expect(parsed.yearlySalaries).toBeUndefined();
+      expect(parsed.dbAverageSalary).toBeUndefined();
     }
   });
 

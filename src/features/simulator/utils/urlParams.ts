@@ -195,11 +195,13 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
   }
 
   if (params.get("advanced") === "1") {
+    let advancedContractValid = false;
     const salaryMode = params.get("salaryMode");
     if (salaryMode !== null && isSalaryPathMode(salaryMode)) {
       switch (salaryMode) {
         case "CONSTANT_GROWTH":
           result.salaryPathMode = salaryMode;
+          advancedContractValid = true;
           break;
         case "WAGE_PEAK": {
           const peakStart = parseNumberInRange(
@@ -219,6 +221,7 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
             result.peakStartYear = peakStart;
             result.peakCutRate = peakCut;
             result.peakPostGrowthRate = peakPostGrowth;
+            advancedContractValid = true;
           }
           break;
         }
@@ -234,6 +237,7 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
             result.salaryPathMode = salaryMode;
             result.stepUpYear = stepUpYear;
             result.stepUpRate = stepUpRate;
+            advancedContractValid = true;
           }
           break;
         }
@@ -244,6 +248,7 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
             if (parsed !== null && parsed.length === parsedRemainingYears) {
               result.salaryPathMode = salaryMode;
               result.yearlySalaries = parsed;
+              advancedContractValid = true;
             }
           }
           break;
@@ -252,7 +257,7 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
     }
 
     const dbAverageSalary = params.get("dbAverageSalary");
-    if (dbAverageSalary !== null) {
+    if (advancedContractValid && dbAverageSalary !== null) {
       const formatted = formatPositiveKrwParam(dbAverageSalary);
       if (formatted !== null) result.dbAverageSalary = formatted;
     }
