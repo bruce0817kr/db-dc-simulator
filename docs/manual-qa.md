@@ -56,7 +56,7 @@ PR 14에서 18개 시나리오 중 자동화 가능한 핵심 흐름을 Playwrig
 ## 2. QA 환경
 
 - 로컬 개발: `pnpm dev` → http://localhost:3000
-- 프로덕션 빌드: `pnpm build && pnpm start` (`start` script는 `package.json`에 `next start`로 존재 확인됨)
+- 프로덕션 빌드: `pnpm build && pnpm start:standalone` → http://127.0.0.1:3001 (standalone 서버, Docker 와 동일 아티팩트. `next start`는 standalone 설정에서 경고)
 - 권장 브라우저: Chrome, Edge, Safari (각 최신 1개 버전)
 - 모바일: Chrome DevTools 375px 에뮬레이션 (실제 기기 선택)
 - 인쇄: 브라우저 인쇄 미리보기 + PDF 저장

@@ -44,7 +44,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm build && pnpm start --port 3001",
+    command: "pnpm build && pnpm start:standalone",
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,
