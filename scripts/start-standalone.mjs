@@ -10,7 +10,7 @@
 // `next start` 는 output:"standalone" 에서 경고를 내므로 사용하지 않는다.
 //
 // 사용: pnpm build && pnpm start:standalone
-// 환경변수: PORT(기본 3001), HOSTNAME(기본 0.0.0.0)
+// 환경변수: PORT(기본 3001), STANDALONE_HOSTNAME(기본 0.0.0.0)
 
 import { access, cp, mkdir } from "node:fs/promises";
 import { spawn } from "node:child_process";
@@ -30,7 +30,7 @@ try {
 }
 
 const PORT = process.env.PORT ?? "3001";
-const HOSTNAME = process.env.HOSTNAME ?? "0.0.0.0";
+const HOSTNAME = process.env.STANDALONE_HOSTNAME ?? "0.0.0.0";
 
 // 정적 자산 복사 (Dockerfile COPY 단계와 동일).
 await mkdir(resolve(standaloneDir, ".next"), { recursive: true });
