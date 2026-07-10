@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { simulate, PORTFOLIO_PRESETS, netReturnRate, buildSalaryPath } from "@/src/calculator";
 import { SimulationResult } from "@/src/calculator/types";
-import { SimulatorFormValues, SalaryPathModeUI } from "../types";
+import { MAX_REMAINING_YEARS, SimulatorFormValues, SalaryPathModeUI } from "../types";
 import { validateForm } from "../utils/validation";
 import { parseKRWInput, parsePercentInput, formatKRW, formatPercent } from "../utils/formatters";
 
@@ -50,7 +50,7 @@ function presetToRateString(rate: number): string {
 /** 남은 근속연수 n을 정수로 파싱. 유효하지 않으면 null. */
 function parseRemainingYears(raw: string): number | null {
   const n = parseKRWInput(raw);
-  if (n === null || !Number.isInteger(n) || n < 1) return null;
+  if (n === null || !Number.isInteger(n) || n < 1 || n > MAX_REMAINING_YEARS) return null;
   return n;
 }
 

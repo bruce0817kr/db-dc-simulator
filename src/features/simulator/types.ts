@@ -1,5 +1,7 @@
 import { ConversionType } from "@/src/calculator/types";
 
+export const MAX_REMAINING_YEARS = 80;
+
 export type SalaryPathModeUI = "CONSTANT_GROWTH" | "WAGE_PEAK" | "STEP_UP" | "YEARLY_CUSTOM";
 
 export interface SimulatorFormValues {

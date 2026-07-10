@@ -11,12 +11,6 @@ interface ShareSectionProps {
 }
 
 export function ShareSection({ values, disabled }: ShareSectionProps) {
-  const [message, setMessage] = useState<string | null>(null);
-  const [approvedAdvancedFingerprint, setApprovedAdvancedFingerprint] = useState<string | null>(
-    null
-  );
-  const hasAdvancedValues =
-    values.salaryPathMode !== "CONSTANT_GROWTH" || values.dbAverageSalary.trim().length > 0;
   const advancedFingerprint = JSON.stringify([
     values.salaryPathMode,
     values.peakStartYear,
@@ -27,17 +21,25 @@ export function ShareSection({ values, disabled }: ShareSectionProps) {
     values.yearlySalaries,
     values.dbAverageSalary,
   ]);
-  const includeAdvanced =
-    hasAdvancedValues && approvedAdvancedFingerprint === advancedFingerprint;
+
+  return <ShareSectionContent key={advancedFingerprint} values={values} disabled={disabled} />;
+}
+
+function ShareSectionContent({ values, disabled }: ShareSectionProps) {
+  const [message, setMessage] = useState<string | null>(null);
+  const [includeAdvanced, setIncludeAdvanced] = useState(false);
+  const hasAdvancedValues =
+    values.salaryPathMode !== "CONSTANT_GROWTH" || values.dbAverageSalary.trim().length > 0;
 
   async function handleCopy() {
     try {
       const url = buildShareUrl(values, window.location.origin, { includeAdvanced });
       await navigator.clipboard.writeText(url);
+      setIncludeAdvanced(false);
       setMessage("복사되었습니다");
       setTimeout(() => setMessage(null), 2000);
     } catch {
-      setMessage("복사에 실패했습니다. 주소창의 URL을 직접 복사해주세요.");
+      setMessage("복사에 실패했습니다. 브라우저의 클립보드 권한을 확인한 뒤 다시 시도해주세요.");
     }
   }
 
@@ -54,10 +56,8 @@ export function ShareSection({ values, disabled }: ShareSectionProps) {
           <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm font-medium">
             <input
               type="checkbox"
-              checked={includeAdvanced}
-              onChange={(event) =>
-                setApprovedAdvancedFingerprint(event.target.checked ? advancedFingerprint : null)
-              }
+              checked={hasAdvancedValues && includeAdvanced}
+              onChange={(event) => setIncludeAdvanced(event.target.checked)}
               className="h-4 w-4 rounded border-amber-300 accent-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             />
             고급 임금 설정도 공유 링크에 포함
@@ -70,7 +70,7 @@ export function ShareSection({ values, disabled }: ShareSectionProps) {
         </div>
       )}
       <p className="text-xs text-gray-500">
-        공유 링크에는 입력하신 연봉 등 재무 정보가 그대로 포함됩니다. 링크를 받은 사람은 누구나 볼 수 있으며, 이 서비스는 어떤 정보도 서버에 저장하지 않습니다.
+        공유 링크에는 입력하신 연봉 등 재무 정보가 그대로 포함됩니다. 링크를 받은 사람은 누구나 볼 수 있습니다. 입력 정보는 별도 데이터베이스에 저장하지 않지만 URL은 브라우저 기록이나 운영 서버 접속 로그에 남을 수 있습니다.
       </p>
     </div>
   );

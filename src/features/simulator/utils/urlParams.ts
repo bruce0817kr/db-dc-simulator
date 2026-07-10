@@ -1,10 +1,16 @@
 import type { ConversionType } from "@/src/calculator/types";
-import type { SimulatorFormValues, SalaryPathModeUI } from "../types";
+import {
+  MAX_REMAINING_YEARS,
+  type SimulatorFormValues,
+  type SalaryPathModeUI,
+} from "../types";
 import { parseKRWInput, formatKRW } from "./formatters";
 
 interface ShareUrlOptions {
   readonly includeAdvanced?: boolean;
 }
+
+const MAX_SHARE_SEARCH_LENGTH = 8_192;
 
 function isConversionType(value: string): value is ConversionType {
   return value === "TRANSFER_ALL_TO_DC" || value === "CUSTOM_TRANSFER_AMOUNT";
@@ -26,20 +32,48 @@ function setFiniteParam(params: URLSearchParams, key: string, raw: string): void
 
 function setKrwParam(params: URLSearchParams, key: string, raw: string): void {
   const value = parseKRWInput(raw);
-  if (value !== null) params.set(key, String(Math.round(value)));
+  if (value !== null && value > 0 && value <= 1e12) {
+    params.set(key, String(Math.round(value)));
+  }
 }
 
-function formatKrwParam(raw: string): string | null {
-  const value = Number(raw.replace(/,/g, ""));
-  if (!Number.isFinite(value)) return null;
+function formatPositiveKrwParam(raw: string): string | null {
+  const value = parseKRWInput(raw);
+  if (value === null || value <= 0 || value > 1e12) return null;
   return formatKRW(value).replace("원", "").trim();
+}
+
+function formatNonNegativeKrwParam(raw: string): string | null {
+  const value = parseKRWInput(raw);
+  if (value === null || value < 0) return null;
+  return formatKRW(value).replace("원", "").trim();
+}
+
+function parseRemainingYears(raw: string | null): number | null {
+  if (raw === null) return null;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1 || value > MAX_REMAINING_YEARS) return null;
+  return value;
+}
+
+function parseNumberInRange(
+  raw: string | null,
+  minimum: number,
+  maximum: number,
+  integer = false
+): string | null {
+  if (raw === null || raw.trim().length === 0) return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < minimum || value > maximum) return null;
+  if (integer && !Number.isInteger(value)) return null;
+  return raw;
 }
 
 function serializeYearlySalaries(values: readonly string[]): string | null {
   const serialized: string[] = [];
   for (const raw of values) {
     const value = parseKRWInput(raw);
-    if (value === null) return null;
+    if (value === null || value <= 0 || value > 1e12) return null;
     serialized.push(String(Math.round(value)));
   }
   return serialized.length > 0 ? serialized.join(",") : null;
@@ -47,9 +81,11 @@ function serializeYearlySalaries(values: readonly string[]): string | null {
 
 function parseYearlySalaries(raw: string): string[] | null {
   if (raw.length === 0) return null;
+  const items = raw.split(",");
+  if (items.length > MAX_REMAINING_YEARS) return null;
   const parsed: string[] = [];
-  for (const item of raw.split(",")) {
-    const formatted = formatKrwParam(item);
+  for (const item of items) {
+    const formatted = formatPositiveKrwParam(item);
     if (formatted === null) return null;
     parsed.push(formatted);
   }
@@ -107,6 +143,7 @@ export function buildShareUrl(
 }
 
 export function parseSearchToFormValues(search: string): Partial<SimulatorFormValues> {
+  if (search.length > MAX_SHARE_SEARCH_LENGTH) return {};
   const params = new URLSearchParams(search);
   const result: Partial<SimulatorFormValues> = {};
 
@@ -125,10 +162,8 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
   }
 
   const remainingYears = params.get("remainingYears");
-  if (remainingYears !== null) {
-    const n = Number(remainingYears);
-    if (Number.isFinite(n)) result.remainingYearsOfService = remainingYears;
-  }
+  const parsedRemainingYears = parseRemainingYears(remainingYears);
+  if (parsedRemainingYears !== null) result.remainingYearsOfService = String(parsedRemainingYears);
 
   const salaryGrowth = params.get("salaryGrowth");
   if (salaryGrowth !== null) {
@@ -155,40 +190,49 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
 
   const customTransfer = params.get("customTransfer");
   if (customTransfer !== null) {
-    const formatted = formatKrwParam(customTransfer);
+    const formatted = formatNonNegativeKrwParam(customTransfer);
     if (formatted !== null) result.customTransferAmount = formatted;
   }
 
   if (params.get("advanced") === "1") {
     const salaryMode = params.get("salaryMode");
     if (salaryMode !== null && isSalaryPathMode(salaryMode)) {
-      result.salaryPathMode = salaryMode;
-
       switch (salaryMode) {
         case "CONSTANT_GROWTH":
+          result.salaryPathMode = salaryMode;
           break;
         case "WAGE_PEAK": {
-          const peakStart = params.get("peakStart");
-          const peakCut = params.get("peakCut");
-          const peakPostGrowth = params.get("peakPostGrowth");
-          if (peakStart !== null && Number.isFinite(Number(peakStart))) {
+          const peakStart = parseNumberInRange(
+            params.get("peakStart"),
+            1,
+            parsedRemainingYears ?? 0,
+            true
+          );
+          const peakCut = parseNumberInRange(params.get("peakCut"), 0, 50);
+          const peakPostGrowth = parseNumberInRange(
+            params.get("peakPostGrowth"),
+            -10,
+            20
+          );
+          if (peakStart !== null && peakCut !== null && peakPostGrowth !== null) {
+            result.salaryPathMode = salaryMode;
             result.peakStartYear = peakStart;
-          }
-          if (peakCut !== null && Number.isFinite(Number(peakCut))) {
             result.peakCutRate = peakCut;
-          }
-          if (peakPostGrowth !== null && Number.isFinite(Number(peakPostGrowth))) {
             result.peakPostGrowthRate = peakPostGrowth;
           }
           break;
         }
         case "STEP_UP": {
-          const stepUpYear = params.get("stepUpYear");
-          const stepUpRate = params.get("stepUpRate");
-          if (stepUpYear !== null && Number.isFinite(Number(stepUpYear))) {
+          const stepUpYear = parseNumberInRange(
+            params.get("stepUpYear"),
+            1,
+            parsedRemainingYears ?? 0,
+            true
+          );
+          const stepUpRate = parseNumberInRange(params.get("stepUpRate"), 0, 100);
+          if (stepUpYear !== null && stepUpRate !== null) {
+            result.salaryPathMode = salaryMode;
             result.stepUpYear = stepUpYear;
-          }
-          if (stepUpRate !== null && Number.isFinite(Number(stepUpRate))) {
             result.stepUpRate = stepUpRate;
           }
           break;
@@ -197,7 +241,10 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
           const salaries = params.get("salaries");
           if (salaries !== null) {
             const parsed = parseYearlySalaries(salaries);
-            if (parsed !== null) result.yearlySalaries = parsed;
+            if (parsed !== null && parsed.length === parsedRemainingYears) {
+              result.salaryPathMode = salaryMode;
+              result.yearlySalaries = parsed;
+            }
           }
           break;
         }
@@ -206,7 +253,7 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
 
     const dbAverageSalary = params.get("dbAverageSalary");
     if (dbAverageSalary !== null) {
-      const formatted = formatKrwParam(dbAverageSalary);
+      const formatted = formatPositiveKrwParam(dbAverageSalary);
       if (formatted !== null) result.dbAverageSalary = formatted;
     }
   }

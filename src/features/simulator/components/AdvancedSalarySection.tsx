@@ -1,4 +1,9 @@
-import { SimulatorFormValues, FieldErrors, SalaryPathModeUI } from "../types";
+import {
+  MAX_REMAINING_YEARS,
+  SimulatorFormValues,
+  FieldErrors,
+  SalaryPathModeUI,
+} from "../types";
 import { TextInput } from "@/src/components/ui/TextInput";
 import { Select } from "@/src/components/ui/Select";
 import { Button } from "@/src/components/ui/Button";
@@ -21,7 +26,7 @@ const MODE_OPTIONS: { value: SalaryPathModeUI; label: string }[] = [
 
 function parseRemainingYears(raw: string): number {
   const n = Number(raw);
-  return Number.isInteger(n) && n >= 1 ? n : 0;
+  return Number.isInteger(n) && n >= 1 && n <= MAX_REMAINING_YEARS ? n : 0;
 }
 
 export function AdvancedSalarySection({

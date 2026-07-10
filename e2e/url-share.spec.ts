@@ -27,7 +27,8 @@ test.describe("4.14 URL 공유 복원", () => {
 
     // 개인정보 경고문
     await expect(page.getByText(/재무 정보가 그대로 포함됩니다/)).toBeVisible();
-    await expect(page.getByText(/서버에 저장하지 않습니다/)).toBeVisible();
+    await expect(page.getByText(/별도 데이터베이스에 저장하지 않지만/)).toBeVisible();
+    await expect(page.getByText(/운영 서버 접속 로그에 남을 수 있습니다/)).toBeVisible();
   });
 
   test("공유 URL → 신규 페이지에서 입력값 복원", async ({ browser }) => {
@@ -83,5 +84,16 @@ test.describe("4.14 URL 공유 복원", () => {
       "90,000,000"
     );
     await page2.close();
+  });
+
+  test("손상되거나 과도한 고급 URL → 기본 모드로 안전하게 폴백", async ({ page }) => {
+    await page.goto(
+      "/?remainingYears=1000000&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000%2C%2C84872000"
+    );
+
+    await expect(page.getByLabel("남은 근속연수")).toHaveValue("15");
+    await page.locator("summary", { hasText: "고급 임금 시나리오" }).click();
+    await expect(page.getByLabel("임금 경로 모드")).toHaveValue("CONSTANT_GROWTH");
+    await expect(page.getByText(TEXTS.dbCard)).toBeVisible();
   });
 });

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 afterEach(() => {
   cleanup();
 });
@@ -81,7 +81,7 @@ describe("ShareSection — 고급 임금 설정 공유 옵트인", () => {
     ).toBe(false);
   });
 
-  it("(share-change) 포함 승인 후 고급 값 변경 → 다시 미선택", () => {
+  it("(share-change) 포함 승인 후 A→B→A 변경 → 다시 미선택", () => {
     const initialValues = baseValues({
       salaryPathMode: "YEARLY_CUSTOM",
       yearlySalaries: ["82,400,000", "84,872,000"],
@@ -105,5 +105,35 @@ describe("ShareSection — 고급 임금 설정 공유 옵트인", () => {
         .getByRole("checkbox", { name: "고급 임금 설정도 공유 링크에 포함" })
         .matches(":checked")
     ).toBe(false);
+
+    rerender(<ShareSection values={initialValues} disabled={false} />);
+
+    expect(
+      screen
+        .getByRole("checkbox", { name: "고급 임금 설정도 공유 링크에 포함" })
+        .matches(":checked")
+    ).toBe(false);
+  });
+
+  it("(share-consume) 링크 복사 성공 → 포함 승인 소진", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    render(
+      <ShareSection
+        values={baseValues({ salaryPathMode: "WAGE_PEAK" })}
+        disabled={false}
+      />
+    );
+    const checkbox = screen.getByRole("checkbox", {
+      name: "고급 임금 설정도 공유 링크에 포함",
+    });
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByRole("button", { name: "공유 링크 복사" }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(checkbox.matches(":checked")).toBe(false);
   });
 });

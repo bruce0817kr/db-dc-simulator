@@ -1,6 +1,6 @@
 import { SimulationInput } from "@/src/calculator/types";
 import { SalaryPathConfig } from "@/src/calculator/salary-path";
-import { SimulatorFormValues, FieldErrors } from "../types";
+import { MAX_REMAINING_YEARS, SimulatorFormValues, FieldErrors } from "../types";
 import { parseKRWInput, parsePercentInput } from "./formatters";
 
 export function validateForm(values: SimulatorFormValues): {
@@ -29,9 +29,10 @@ export function validateForm(values: SimulatorFormValues): {
   if (
     remainingServiceYears === null ||
     remainingServiceYears <= 0 ||
+    remainingServiceYears > MAX_REMAINING_YEARS ||
     !Number.isInteger(remainingServiceYears)
   ) {
-    errors.remainingYearsOfService = "남은 근속연수는 1년 이상의 정수로 입력해주세요.";
+    errors.remainingYearsOfService = `남은 근속연수는 1년 이상 ${MAX_REMAINING_YEARS}년 이하의 정수로 입력해주세요.`;
   }
 
   const wageGrowthRate = parsePercentInput(values.salaryGrowthRate);

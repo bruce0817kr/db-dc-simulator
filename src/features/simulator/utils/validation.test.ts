@@ -85,20 +85,31 @@ describe("validateForm", () => {
   it("remainingYearsOfService = 0 → error", () => {
     const { errors } = validateForm({ ...valid, remainingYearsOfService: "0" });
     expect(errors.remainingYearsOfService).toBe(
-      "남은 근속연수는 1년 이상의 정수로 입력해주세요."
+      "남은 근속연수는 1년 이상 80년 이하의 정수로 입력해주세요."
     );
   });
 
   it("remainingYearsOfService = 15.5 (decimal) → error", () => {
     const { errors } = validateForm({ ...valid, remainingYearsOfService: "15.5" });
     expect(errors.remainingYearsOfService).toBe(
-      "남은 근속연수는 1년 이상의 정수로 입력해주세요."
+      "남은 근속연수는 1년 이상 80년 이하의 정수로 입력해주세요."
     );
   });
 
   it("remainingYearsOfService = 1 → valid (boundary)", () => {
     const { errors } = validateForm({ ...valid, remainingYearsOfService: "1" });
     expect(errors.remainingYearsOfService).toBeUndefined();
+  });
+
+  it("remainingYearsOfService = 80 → valid, 81 → error", () => {
+    expect(
+      validateForm({ ...valid, remainingYearsOfService: "80" }).errors
+        .remainingYearsOfService
+    ).toBeUndefined();
+    expect(
+      validateForm({ ...valid, remainingYearsOfService: "81" }).errors
+        .remainingYearsOfService
+    ).toContain("80년 이하");
   });
 
   it("salaryGrowthRate = -10 (boundary) → valid", () => {

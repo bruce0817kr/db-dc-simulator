@@ -195,6 +195,39 @@ describe("고급 임금 설정 옵트인", () => {
     expect(parsed.yearlySalaries).toBeUndefined();
     expect(parsed.dbAverageSalary).toBeUndefined();
   });
+
+  it("필수 필드가 없거나 손상된 고급 모드는 전체를 무시", () => {
+    const cases = [
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,,84872000",
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000,0",
+      "?remainingYears=2&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=82400000",
+      "?remainingYears=2&advanced=1&salaryMode=WAGE_PEAK&peakStart=1&peakCut=20",
+      "?remainingYears=2&advanced=1&salaryMode=STEP_UP&stepUpYear=1",
+    ];
+
+    for (const search of cases) {
+      const parsed = parseSearchToFormValues(search);
+      expect(parsed.salaryPathMode).toBeUndefined();
+      expect(parsed.yearlySalaries).toBeUndefined();
+    }
+  });
+
+  it("80년 초과 remainingYears와 salaries 목록은 복원하지 않음", () => {
+    const salaries = Array.from({ length: 81 }, () => "82400000").join(",");
+    const parsed = parseSearchToFormValues(
+      `?remainingYears=81&advanced=1&salaryMode=YEARLY_CUSTOM&salaries=${salaries}`
+    );
+
+    expect(parsed.remainingYearsOfService).toBeUndefined();
+    expect(parsed.salaryPathMode).toBeUndefined();
+    expect(parsed.yearlySalaries).toBeUndefined();
+  });
+
+  it("8KB 초과 query는 전체를 무시", () => {
+    const parsed = parseSearchToFormValues(`?salary=80000000&padding=${"x".repeat(8_192)}`);
+
+    expect(parsed).toEqual({});
+  });
 });
 
 describe("volatility 왕복", () => {
