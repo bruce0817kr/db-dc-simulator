@@ -239,7 +239,7 @@ iterations: 1000
 - 길이 ≠ n이면 throw
 
 자동화 매핑: `salary-path.test.ts` — `buildSalaryPath YEARLY_CUSTOM`
-- UI/E2E 매핑(PR 15): `src/features/simulator/SimulatorPage.test.tsx`(resize·채우기·뱃지·미갱신), `validation.test.ts`(길이/빈/0/음수/과다/override), `components/PrintReportHeader.test.tsx`(요약줄·STEP_UP 라벨), `components/ShareSection.test.tsx`(미포함 안내), `e2e/yearly-custom.spec.ts`(yc-1~yc-5)
+- UI/E2E 매핑(PR 15/17): `src/features/simulator/SimulatorPage.test.tsx`(resize·채우기·뱃지·미갱신), `validation.test.ts`(길이/빈/0/음수/과다/override), `components/PrintReportHeader.test.tsx`(요약줄·STEP_UP 라벨), `components/ShareSection.test.tsx`(기본 미포함·매 공유 재동의), `e2e/yearly-custom.spec.ts`(yc-1~yc-5), `e2e/url-share.spec.ts`(옵트인 복원·손상 URL 폴백)
 
 ### 5.5 dbAverageSalaryOverride
 
@@ -345,6 +345,8 @@ iterations: 1000
 - 고급 임금 설정 활성화 시 옵트인 기본 미선택
 - 미선택 URL에는 고급 파라미터 미포함
 - 선택 URL에는 `advanced=1`과 활성 모드 파라미터 포함, 새 페이지에서 복원
+- 복사 성공·고급 값 변경 시 옵트인 해제
+- 손상 URL, 80년·8KB 상한 초과 URL은 기본 모드로 폴백
 
 자동화 매핑: `SimulatorPage.test.tsx` — `(e)`, `(f)`
 
