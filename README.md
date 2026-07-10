@@ -129,6 +129,7 @@ docs/
 | `docs/release-checklist.md` | 배포 전 검증 항목 |
 | `docs/manual-qa.md` | 수동 QA 시나리오 18개 + 결과 기록 형식 |
 | `docs/deployment-notes.md` | 빌드 산출물, 호스팅, 롤백 절차 |
+| `docs/pr-18-chart-design.md` | DB/DC 민감도 차트의 데이터·접근성·반응형 설계 계약 |
 
 ## 면책 고지
 
