@@ -9,11 +9,11 @@
 
 | 게이트 | 명령 | 기준 |
 |--------|------|------|
-| Test | `pnpm test` | 전량 통과 (현재 253건) |
+| Test | `pnpm test` | 전량 통과 (현재 291건) |
 | Lint | `pnpm lint` | eslint 오류·경고 없음 |
 | Typecheck | `pnpm build` (TS 검사 포함) | Finished TypeScript 성공 |
 | Build | `pnpm build` | 정적 프리렌더 `/` 완료 |
-| E2E | `pnpm e2e` | Playwright 전량 통과 (현재 38건, PR 14/15) |
+| E2E | `pnpm e2e` | Playwright 전량 통과 (현재 48건, PR 14/15/17/18) |
 | 통합 QA | `pnpm qa` | test && lint && build && e2e 전부 통과 |
 
 - 4-gate 중 하나라도 실패 시 배포 불가.
@@ -40,6 +40,7 @@
 - [ ] dbAverageSalaryOverride 시 DC(r*) 상대오차 < 1e-4
 - [ ] 민감도 매트릭스 54 points (6 × 9)
 - [ ] breakevenByGrowthRate 각 r*의 정합성
+- [ ] DB/DC 비교선 차트 9개 점 × 2계열 + 손익분기·현재 입력 + 정확한 수치 표
 - [ ] 세금 단조성 (gross 증가 → totalTax 증가)
 - [ ] 세금 경계 연속성 (근속 5/10/20년, 환산급여 800만/7,000만/1억/3억)
 - [ ] 몬테카를로 seed 고정 재현성
@@ -190,3 +191,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-10 | Docker smoke check 추가 (PR 16B) | `docker compose` 배포 검증 항목 (200/non-root/로그) |
 | 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA → standalone 서버(`pnpm start:standalone`). `next start` 경고 제거, Docker 와 동일 아티팩트 검증. E2E 38건, scripts 목록 갱신 |
 | 2026-07-10 | URL 공유 고급 설정 옵트인 (PR 17) | 기본 미포함, 매 공유 재동의, 손상 URL 폴백, 80년·8KB 상한. 단위·컴포넌트 283건, E2E 40건 |
+| 2026-07-10 | DB/DC 민감도 차트 (PR 18) | 네이티브 SVG, 표 병행, 색상 외 구분, 375/768/1280·인쇄·axe 검증. 단위·컴포넌트 291건, E2E 48건 |
