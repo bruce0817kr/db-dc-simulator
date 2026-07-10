@@ -1,13 +1,102 @@
-import { ConversionType } from "@/src/calculator/types";
-import { SimulatorFormValues } from "../types";
+import type { ConversionType } from "@/src/calculator/types";
+import {
+  MAX_REMAINING_YEARS,
+  type SimulatorFormValues,
+  type SalaryPathModeUI,
+} from "../types";
 import { parseKRWInput, formatKRW } from "./formatters";
 
-const CONVERSION_TYPE_WHITELIST: ConversionType[] = [
-  "TRANSFER_ALL_TO_DC",
-  "CUSTOM_TRANSFER_AMOUNT",
-];
+interface ShareUrlOptions {
+  readonly includeAdvanced?: boolean;
+}
 
-export function buildShareUrl(values: SimulatorFormValues, origin: string): string {
+const MAX_SHARE_SEARCH_LENGTH = 8_192;
+
+function isConversionType(value: string): value is ConversionType {
+  return value === "TRANSFER_ALL_TO_DC" || value === "CUSTOM_TRANSFER_AMOUNT";
+}
+
+function isSalaryPathMode(value: string): value is SalaryPathModeUI {
+  return (
+    value === "CONSTANT_GROWTH" ||
+    value === "WAGE_PEAK" ||
+    value === "STEP_UP" ||
+    value === "YEARLY_CUSTOM"
+  );
+}
+
+function setFiniteParam(params: URLSearchParams, key: string, raw: string): void {
+  const value = Number(raw);
+  if (Number.isFinite(value)) params.set(key, raw);
+}
+
+function setKrwParam(params: URLSearchParams, key: string, raw: string): void {
+  const value = parseKRWInput(raw);
+  if (value !== null && value > 0 && value <= 1e12) {
+    params.set(key, String(Math.round(value)));
+  }
+}
+
+function formatPositiveKrwParam(raw: string): string | null {
+  const value = parseKRWInput(raw);
+  if (value === null || value <= 0 || value > 1e12) return null;
+  return formatKRW(value).replace("원", "").trim();
+}
+
+function formatNonNegativeKrwParam(raw: string): string | null {
+  const value = parseKRWInput(raw);
+  if (value === null || value < 0) return null;
+  return formatKRW(value).replace("원", "").trim();
+}
+
+function parseRemainingYears(raw: string | null): number | null {
+  if (raw === null) return null;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1 || value > MAX_REMAINING_YEARS) return null;
+  return value;
+}
+
+function parseNumberInRange(
+  raw: string | null,
+  minimum: number,
+  maximum: number,
+  integer = false
+): string | null {
+  if (raw === null || raw.trim().length === 0) return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < minimum || value > maximum) return null;
+  if (integer && !Number.isInteger(value)) return null;
+  return raw;
+}
+
+function serializeYearlySalaries(values: readonly string[]): string | null {
+  const serialized: string[] = [];
+  for (const raw of values) {
+    const value = parseKRWInput(raw);
+    if (value === null || value <= 0 || value > 1e12) return null;
+    serialized.push(String(Math.round(value)));
+  }
+  return serialized.length > 0 ? serialized.join(",") : null;
+}
+
+function parseYearlySalaries(raw: string): string[] | null {
+  if (raw.length === 0) return null;
+  const items = raw.split(",");
+  if (items.length > MAX_REMAINING_YEARS) return null;
+  const parsed: string[] = [];
+  for (const item of items) {
+    const formatted = formatPositiveKrwParam(item);
+    if (formatted === null) return null;
+    parsed.push(formatted);
+  }
+  return parsed;
+}
+
+export function buildShareUrl(
+  values: SimulatorFormValues,
+  origin: string,
+  options: ShareUrlOptions = {}
+): string {
   const params = new URLSearchParams();
 
   const salaryNum = parseKRWInput(values.currentSalary);
@@ -25,10 +114,36 @@ export function buildShareUrl(values: SimulatorFormValues, origin: string): stri
     if (customNum !== null) params.set("customTransfer", String(Math.round(customNum)));
   }
 
+  if (options.includeAdvanced === true) {
+    params.set("advanced", "1");
+    params.set("salaryMode", values.salaryPathMode);
+    setKrwParam(params, "dbAverageSalary", values.dbAverageSalary);
+
+    switch (values.salaryPathMode) {
+      case "CONSTANT_GROWTH":
+        break;
+      case "WAGE_PEAK":
+        setFiniteParam(params, "peakStart", values.peakStartYear);
+        setFiniteParam(params, "peakCut", values.peakCutRate);
+        setFiniteParam(params, "peakPostGrowth", values.peakPostGrowthRate);
+        break;
+      case "STEP_UP":
+        setFiniteParam(params, "stepUpYear", values.stepUpYear);
+        setFiniteParam(params, "stepUpRate", values.stepUpRate);
+        break;
+      case "YEARLY_CUSTOM": {
+        const salaries = serializeYearlySalaries(values.yearlySalaries);
+        if (salaries !== null) params.set("salaries", salaries);
+        break;
+      }
+    }
+  }
+
   return `${origin}/?${params.toString()}`;
 }
 
 export function parseSearchToFormValues(search: string): Partial<SimulatorFormValues> {
+  if (search.length > MAX_SHARE_SEARCH_LENGTH) return {};
   const params = new URLSearchParams(search);
   const result: Partial<SimulatorFormValues> = {};
 
@@ -47,10 +162,8 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
   }
 
   const remainingYears = params.get("remainingYears");
-  if (remainingYears !== null) {
-    const n = Number(remainingYears);
-    if (Number.isFinite(n)) result.remainingYearsOfService = remainingYears;
-  }
+  const parsedRemainingYears = parseRemainingYears(remainingYears);
+  if (parsedRemainingYears !== null) result.remainingYearsOfService = String(parsedRemainingYears);
 
   const salaryGrowth = params.get("salaryGrowth");
   if (salaryGrowth !== null) {
@@ -71,15 +184,82 @@ export function parseSearchToFormValues(search: string): Partial<SimulatorFormVa
   }
 
   const method = params.get("method");
-  if (method !== null && (CONVERSION_TYPE_WHITELIST as string[]).includes(method)) {
-    result.conversionMethod = method as ConversionType;
+  if (method !== null && isConversionType(method)) {
+    result.conversionMethod = method;
   }
 
   const customTransfer = params.get("customTransfer");
   if (customTransfer !== null) {
-    const n = Number(customTransfer.replace(/,/g, ""));
-    if (Number.isFinite(n)) {
-      result.customTransferAmount = formatKRW(n).replace("원", "").trim();
+    const formatted = formatNonNegativeKrwParam(customTransfer);
+    if (formatted !== null) result.customTransferAmount = formatted;
+  }
+
+  if (params.get("advanced") === "1") {
+    let advancedContractValid = false;
+    const salaryMode = params.get("salaryMode");
+    if (salaryMode !== null && isSalaryPathMode(salaryMode)) {
+      switch (salaryMode) {
+        case "CONSTANT_GROWTH":
+          result.salaryPathMode = salaryMode;
+          advancedContractValid = true;
+          break;
+        case "WAGE_PEAK": {
+          const peakStart = parseNumberInRange(
+            params.get("peakStart"),
+            1,
+            parsedRemainingYears ?? 0,
+            true
+          );
+          const peakCut = parseNumberInRange(params.get("peakCut"), 0, 50);
+          const peakPostGrowth = parseNumberInRange(
+            params.get("peakPostGrowth"),
+            -10,
+            20
+          );
+          if (peakStart !== null && peakCut !== null && peakPostGrowth !== null) {
+            result.salaryPathMode = salaryMode;
+            result.peakStartYear = peakStart;
+            result.peakCutRate = peakCut;
+            result.peakPostGrowthRate = peakPostGrowth;
+            advancedContractValid = true;
+          }
+          break;
+        }
+        case "STEP_UP": {
+          const stepUpYear = parseNumberInRange(
+            params.get("stepUpYear"),
+            1,
+            parsedRemainingYears ?? 0,
+            true
+          );
+          const stepUpRate = parseNumberInRange(params.get("stepUpRate"), 0, 100);
+          if (stepUpYear !== null && stepUpRate !== null) {
+            result.salaryPathMode = salaryMode;
+            result.stepUpYear = stepUpYear;
+            result.stepUpRate = stepUpRate;
+            advancedContractValid = true;
+          }
+          break;
+        }
+        case "YEARLY_CUSTOM": {
+          const salaries = params.get("salaries");
+          if (salaries !== null) {
+            const parsed = parseYearlySalaries(salaries);
+            if (parsed !== null && parsed.length === parsedRemainingYears) {
+              result.salaryPathMode = salaryMode;
+              result.yearlySalaries = parsed;
+              advancedContractValid = true;
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    const dbAverageSalary = params.get("dbAverageSalary");
+    if (advancedContractValid && dbAverageSalary !== null) {
+      const formatted = formatPositiveKrwParam(dbAverageSalary);
+      if (formatted !== null) result.dbAverageSalary = formatted;
     }
   }
 

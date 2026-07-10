@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSimulatorForm } from "./hooks/useSimulatorForm";
 import { HeroSection } from "./components/HeroSection";
 import { SimulatorForm } from "./components/SimulatorForm";
@@ -15,14 +15,15 @@ import { ReportSection } from "./components/ReportSection";
 import { parseSearchToFormValues } from "./utils/urlParams";
 
 export function SimulatorPage() {
-  const [initialValues] = useState(() =>
-    typeof window === "undefined" ? {} : parseSearchToFormValues(window.location.search)
-  );
-  const { values, errors, input, result, volatility, inflationRate, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset, onToggleDisplay, setYearlySalary, fillYearlyFromBaseline } =
-    useSimulatorForm(initialValues);
+  const { values, errors, input, result, volatility, inflationRate, riskyAssetWeight, onChange, onBlur, onReset, applyScenario, onSelectPreset, onToggleDisplay, setYearlySalary, fillYearlyFromBaseline, restoreValues } =
+    useSimulatorForm();
   const hasErrors = Object.keys(errors).length > 0;
 
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    restoreValues(parseSearchToFormValues(window.location.search));
+  }, [restoreValues]);
 
   function handlePrint() {
     const now = new Date();

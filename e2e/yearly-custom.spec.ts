@@ -64,14 +64,13 @@ test.describe("4.7 연도별 직접 입력 (YEARLY_CUSTOM)", () => {
     ).toBeVisible();
   });
 
-  test("(yc-4) 공유 링크에 salaries 미포함 + 고급 설정 미포함 안내문", async ({ page }) => {
+  test("(yc-4) 기본 공유 링크에 salaries 미포함 + 옵트인 안내문", async ({ page }) => {
     await page.goto("/");
 
     await page.getByLabel("남은 근속연수").fill("2");
     await openAdvanced(page);
     await page.getByLabel("임금 경로 모드").selectOption("YEARLY_CUSTOM");
 
-    // 고급 설정 미포함 안내문 표시
     await expect(
       page.getByText(/고급 임금 시나리오.*공유 링크에 포함되지 않습니다/)
     ).toBeVisible();
@@ -81,7 +80,6 @@ test.describe("4.7 연도별 직접 입력 (YEARLY_CUSTOM)", () => {
 
     // 공유 버튼이 실제로 URL을 생성했는지 긍정 단정(false-pass 방지)
     expect(url).toContain("salary=");
-    // yearlySalaries 직렬화 미포함
     expect(url).not.toContain("salaries=");
     expect(url).not.toContain("yearlySalaries");
   });
