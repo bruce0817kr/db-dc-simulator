@@ -21,6 +21,11 @@ export type AmountScale = {
   readonly ticks: readonly number[];
 };
 
+export type SeriesLabelPositions = {
+  readonly db: number;
+  readonly dc: number;
+};
+
 type SeriesDirection = "increases" | "decreases" | "unchanged";
 
 type LinearScale = {
@@ -70,6 +75,13 @@ export function getSeriesDirectionDescription(data: readonly RetirementCompariso
     formatDirection("DB", getDirection(first.dbExpectedAmount, last.dbExpectedAmount)),
     formatDirection("DC", getDirection(first.dcExpectedAmount, last.dcExpectedAmount)),
   ].join(" ");
+}
+
+export function getSeriesLabelPositions(db: number, dc: number): SeriesLabelPositions {
+  if (Math.abs(db - dc) >= 20) return { db: db + 4, dc: dc + 4 };
+
+  const midpoint = (db + dc) / 2;
+  return db <= dc ? { db: midpoint - 10, dc: midpoint + 10 } : { db: midpoint + 10, dc: midpoint - 10 };
 }
 
 function getNiceStep(maximum: number): number {

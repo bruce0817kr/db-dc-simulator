@@ -58,7 +58,7 @@
 pnpm install --frozen-lockfile
 
 # 2. 4-gate
-pnpm test       # 294/294 통과 기대
+pnpm test       # 296/296 통과 기대
 pnpm lint       # 오류·경고 없음
 pnpm build      # 정적 프리렌더 / 완료 + TS 검사 통과
 

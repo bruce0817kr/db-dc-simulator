@@ -9,7 +9,7 @@
 
 ## 자동 검증
 
-- `pnpm test`: 294/294 passed
+- `pnpm test`: 296/296 passed
 - `pnpm lint`: clean
 - `pnpm build`: success
 - `pnpm e2e`: 49/49 passed

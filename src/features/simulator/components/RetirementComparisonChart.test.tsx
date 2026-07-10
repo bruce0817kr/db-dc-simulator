@@ -125,6 +125,18 @@ describe("RetirementComparisonChart", () => {
 
     const dbY = container.querySelector('[data-chart-label="db-series"]')?.getAttribute("y");
     const dcY = container.querySelector('[data-chart-label="dc-series"]')?.getAttribute("y");
-    expect(dbY).not.toBe(dcY);
+    expect(Math.abs(Number(dbY) - Number(dcY))).toBeGreaterThanOrEqual(20);
+  });
+
+  it("손익분기 라벨을 8% 경계에서는 왼쪽으로, 0% 경계에서는 오른쪽으로 펼친다", () => {
+    const { container, rerender } = render(
+      <RetirementComparisonChart input={input} result={{ ...result, breakevenReturnRate: 0.08 }} matrix={matrix} />
+    );
+    expect(container.querySelector('[data-chart-label="breakeven"]')?.getAttribute("text-anchor")).toBe("end");
+
+    rerender(
+      <RetirementComparisonChart input={input} result={{ ...result, breakevenReturnRate: 0 }} matrix={matrix} />
+    );
+    expect(container.querySelector('[data-chart-label="breakeven"]')?.getAttribute("text-anchor")).toBe("start");
   });
 });

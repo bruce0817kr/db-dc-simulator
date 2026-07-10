@@ -410,13 +410,13 @@ iterations: 1000
 | explanation | explanation.test.ts | 소수 |
 | stressNarrative | stressNarrative.test.ts | 소수 |
 | displayAmounts | displayAmounts.test.ts | 소수 |
-| 차트 데이터 | chartData.test.ts | 6 |
-| 차트 컴포넌트 | RetirementComparisonChart.test.tsx | 5 |
+| 차트 데이터 | chartData.test.ts | 7 |
+| 차트 컴포넌트 | RetirementComparisonChart.test.tsx | 6 |
 | DB | db.test.ts | 소수 |
 | DC | dc.test.ts | 소수 |
 | salary | salary.test.ts | 소수 |
 | breakeven | breakeven.test.ts | 소수 |
-| 합계 | 25 파일 | 294 |
+| 합계 | 25 파일 | 296 |
 
 Playwright E2E는 `e2e/chart.spec.ts`의 차트 9건을 포함해 총 49건이다.
 

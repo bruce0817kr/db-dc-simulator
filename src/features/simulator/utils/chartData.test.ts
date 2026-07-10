@@ -5,6 +5,7 @@ import {
   createAmountScale,
   getRateRangeStatus,
   getSeriesDirectionDescription,
+  getSeriesLabelPositions,
   scaleValue,
 } from "./chartData";
 
@@ -125,5 +126,12 @@ describe("chartData", () => {
         },
       ])
     ).toBeNull();
+  });
+
+  it("근접한 DB/DC 라벨을 원래 순서를 유지하며 20px 이상 분리한다", () => {
+    expect(getSeriesLabelPositions(100, 100)).toEqual({ db: 90, dc: 110 });
+    expect(getSeriesLabelPositions(119, 100)).toEqual({ db: 119.5, dc: 99.5 });
+    expect(getSeriesLabelPositions(100, 119)).toEqual({ db: 99.5, dc: 119.5 });
+    expect(getSeriesLabelPositions(100, 121)).toEqual({ db: 104, dc: 125 });
   });
 });

@@ -10,6 +10,7 @@ import {
   createAmountScale,
   getRateRangeStatus,
   getSeriesDirectionDescription,
+  getSeriesLabelPositions,
   scaleValue,
 } from "../utils/chartData";
 import { getBreakevenMessage, getCurrentRateMessage } from "../utils/chartMessages";
@@ -77,7 +78,9 @@ export function RetirementComparisonChart({ input, result, matrix }: RetirementC
   const description = `DC 수익률 0%부터 8%까지의 DB와 DC 예상 퇴직급여 비교입니다. ${directionDescription} ${breakevenMessage} ${currentRateMessage}`;
   const dbLabelY = y(lastDatum.dbExpectedAmount);
   const dcLabelY = y(lastDatum.dcExpectedAmount);
-  const labelsOverlap = Math.abs(dbLabelY - dcLabelY) < 20;
+  const labelPositions = getSeriesLabelPositions(dbLabelY, dcLabelY);
+  const breakevenLabelOnRight =
+    breakevenStatus.kind === "inside" && breakevenStatus.value >= CHART_RETURN_RATE_MAXIMUM - 0.01;
 
   return (
     <figure className="break-inside-avoid rounded-lg border border-gray-200 bg-white p-2 sm:p-4">
@@ -155,8 +158,9 @@ export function RetirementComparisonChart({ input, result, matrix }: RetirementC
             />
             <text
               data-chart-label="breakeven"
-              x={x(breakevenStatus.value) + 6}
+              x={x(breakevenStatus.value) + (breakevenLabelOnRight ? -6 : 6)}
               y={CHART.top + 14}
+              textAnchor={breakevenLabelOnRight ? "end" : "start"}
               className="fill-gray-700 text-lg font-semibold sm:text-xs"
             >
               {breakevenMessage}
@@ -188,7 +192,7 @@ export function RetirementComparisonChart({ input, result, matrix }: RetirementC
         <text
           data-chart-label="db-series"
           x={plotRight + 8}
-          y={dbLabelY + (labelsOverlap ? -8 : 4)}
+          y={labelPositions.db}
           className="fill-amber-700 text-xl font-semibold sm:text-xs"
         >
           DB 예상액
@@ -218,7 +222,7 @@ export function RetirementComparisonChart({ input, result, matrix }: RetirementC
         <text
           data-chart-label="dc-series"
           x={plotRight + 8}
-          y={dcLabelY + (labelsOverlap ? 14 : 4)}
+          y={labelPositions.dc}
           className="fill-blue-700 text-xl font-semibold sm:text-xs"
         >
           DC 예상액
