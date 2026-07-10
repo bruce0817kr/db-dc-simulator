@@ -1,0 +1,47 @@
+# deps & build outputs (이미지 내에서 생성)
+node_modules
+.next
+out
+coverage
+
+# test artifacts
+test-results
+playwright-report
+blob-report
+
+# VCS & CI
+.git
+.github
+.gitignore
+
+# deploy 메타 (context 누출 방지)
+Dockerfile
+.dockerignore
+compose.yaml
+compose.*.yaml
+docker-compose*.yml
+
+# env / secrets
+.env*
+
+# OS / editor / 로그
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# platform caches
+.vercel
+.fablize
+.gjc
+.gstack
+
+# 빌드 불필요 문서 (이미지는 README/docs를 포함하지 않음)
+README.md
+docs
+
+# TS 캐시
+*.tsbuildinfo
