@@ -2,7 +2,7 @@
 
 본 문서는 DB/DC 퇴직연금 전환 시뮬레이터의 빌드 산출물, 런타임 요구사항, 호스팅 옵션, 롤백 절차를 정의한다.
 
-> 본 PR 13은 배포 환경 문서화만 제공한다. 실제 배포 실행은 별도 세션에서 수행한다.
+> 현재 기본 배포 경로는 standalone Docker self-host이며, 로컬 build와 GHCR image pull을 모두 지원한다.
 
 ---
 
@@ -34,9 +34,9 @@
 
 | 플랫폼 | 적합성 | 비고 |
 |--------|--------|------|
-| Vercel | 권장 | Next.js 공식, zero-config, 정적 호스팅 무료 |
-| Netlify | 가능 | Next.js adapter 필요 |
-| 자체 호스팅 | 가능 | `next start` 또는 standalone output |
+| Docker self-host | 권장 | standalone output, local build 또는 GHCR image |
+| Vercel | 미사용 | 프로젝트 배포 경로에서 폐기 |
+| Netlify | 미사용 | 별도 adapter와 운영 계약 없음 |
 | 정적 내보내기 | 검토 가능 | 모든 페이지 Static이므로 `output: 'export'` 옵션 검토 가능. 단, 별도 검증 후 적용 |
 
 - **기본 배포 경로: Docker self-host** (`docker compose`) — PR 16B. Vercel/Netlify는 더 이상 권장하지 않는다.
@@ -49,7 +49,6 @@
 - 모든 페이지가 Static이므로 `next.config`에 `output: 'export'` 추가 검토 가능. 단, 별도 검증 후 적용
 - 향후 동적 라우트·서버 액션 추가 시 재검토 필요
 - 현재는 standalone 서버(`output:"standalone"`) 기반 호스팅 — `pnpm start:standalone` 또는 Docker (`next start`는 standalone 설정에서 경고)
-- 본 PR 13에서는 `next.config` 변경하지 않음
 
 ## 6. 배포 전 명령
 
@@ -64,7 +63,7 @@ pnpm build      # 정적 프리렌더 / 완료 + TS 검사 통과
 
 # 2-1. E2E 게이트 (PR 14)
 pnpm exec playwright install chromium   # 최초 1회
-pnpm e2e                                  # Playwright 33건
+pnpm e2e                                  # Playwright 49건
 # 또는 통합
 pnpm qa                                    # test + lint + build + e2e
 
@@ -133,7 +132,7 @@ docker compose up -d          # 이미지 변경 시 재생성
 
 ### 6-3. GHCR 이미지로 배포 (PR 16D)
 
-`master`에 병합된 이미지는 `ghcr.io/bruce0817kr/db-dc-simulator`로 발행된다. 운영 배포는 `latest` 대신 commit SHA 태그 또는 digest를 고정한다.
+`master`에 병합된 이미지는 `ghcr.io/bruce0817kr/db-dc-simulator`로 발행된다. commit SHA 태그는 source 추적에 사용하고, 엄격한 불변 배포는 digest를 고정한다.
 
 ```bash
 export DB_DC_SIMULATOR_IMAGE=ghcr.io/bruce0817kr/db-dc-simulator:sha-<40자리-commit-sha>
@@ -193,7 +192,7 @@ docker compose up -d
 ## 8. 롤백 절차
 
 - **Docker (기본)**: `git checkout <tag>` → `docker compose build` → `docker compose up -d` (이전 태그 이미지로 재빌드·교체)
-- **GHCR**: 이전에 검증한 `sha-*` 또는 digest로 `DB_DC_SIMULATOR_IMAGE`를 변경 → `docker compose pull` → `docker compose up -d --no-build`
+- **GHCR**: 이전에 검증한 digest로 `DB_DC_SIMULATOR_IMAGE`를 변경 → `docker compose pull` → `docker compose up -d --no-build`
 - **이전 이미지 보존 시**: `docker image ls db-dc-simulator`로 태그 확인 후 재빌드 없이 교체 가능
 - Vercel 롤백은 미사용(폐기)
 

@@ -144,4 +144,4 @@ docs/
 
 릴리스 전 `docs/release-checklist.md`와 `docs/manual-qa.md`의 항목을 모두 충족해야 합니다. 배포 환경 정보는 `docs/deployment-notes.md`를 참조.
 
-Docker 이미지는 로컬에서 직접 빌드하거나, PR 16D 병합 후 GHCR의 불변 `sha-*` 태그 또는 digest를 지정해 실행할 수 있습니다. 운영 배포에서는 `latest`보다 불변 참조를 사용합니다.
+Docker 이미지는 로컬에서 직접 빌드하거나, PR 16D 병합 후 GHCR의 추적용 `sha-*` 태그 또는 불변 digest를 지정해 실행할 수 있습니다. 운영 배포와 롤백에는 digest 고정을 권장합니다.

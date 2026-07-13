@@ -4,7 +4,7 @@
 
 - PR에서는 Docker image build만 검증
 - `master`와 향후 `v*` tag에서만 GHCR publish
-- 불변 commit SHA·SemVer tag와 provenance attestation
+- commit SHA 추적·SemVer tag와 digest provenance attestation
 - Compose local build 및 GHCR image override 병행
 
 ## 자동 검증
@@ -18,6 +18,8 @@
 - `pnpm build`: success
 - `pnpm e2e`: 49/49 passed
 - `pnpm qa`: green
+- publish job은 같은 workflow의 `pnpm qa` 성공에 의존
+- 잘못된 `v*` tag는 SemVer 검사에서 publish 전에 실패
 
 ## Docker 실사용 검증
 
