@@ -160,7 +160,7 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 - [ ] Docker smoke (PR 16B): `docker compose up -d` → `127.0.0.1:3000` 200 응답 + `docker compose exec db-dc-simulator id` non-root(uid 1001) + 로그 치명 에러 0건
 - [ ] PR workflow에서 `Build image (no publish)`만 실행
 - [ ] master workflow에서 `latest`와 `sha-<40자리 SHA>` 발행
-- [ ] 향후 `v*` tag workflow에서 정확한 SemVer tag 발행
+- [ ] 향후 `v*` tag workflow에서 지원하는 SemVer core/prerelease tag 발행
 - [ ] 잘못된 `v*` tag는 publish 전에 실패
 - [ ] `pnpm qa` 실패 시 login·push·attestation 미실행
 - [ ] 발행 digest에 GitHub artifact attestation 생성

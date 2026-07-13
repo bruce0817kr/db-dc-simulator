@@ -19,7 +19,7 @@
 - `pnpm e2e`: 49/49 passed
 - `pnpm qa`: green
 - publish job은 같은 workflow의 `pnpm qa` 성공에 의존
-- 잘못된 `v*` tag는 SemVer 검사에서 publish 전에 실패
+- 잘못된 `v*` tag와 숫자 prerelease 선행 0은 publish 전에 실패하며 `+build` metadata는 지원하지 않음
 
 ## Docker 실사용 검증
 
