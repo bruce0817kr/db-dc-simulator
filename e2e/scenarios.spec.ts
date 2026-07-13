@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { LABELS, TEXTS } from "./utils";
 
 /**
@@ -21,6 +21,7 @@ test.describe("4.2 DB 유리 케이스", () => {
     await page.getByLabel(LABELS.dcReturnRate).fill("1");
     // "DB 유리" 라벨 — 차이 카드 배지가 가장 안정적 (.first())
     await expect(page.getByText("DB 유리", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })).toContainText("현재 입력 1.0%");
     // 손익분기 문장 여전히 존재 (방향성 검증)
     await expect(page.getByText(/이상 운용해야/)).toBeVisible();
   });
@@ -31,6 +32,7 @@ test.describe("4.3 DC 유리 케이스", () => {
     await page.goto("/");
     await page.getByLabel(LABELS.dcReturnRate).fill("7");
     await expect(page.getByText("DC 유리", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("img", { name: "DB/DC 예상 퇴직급여 비교 차트" })).toContainText("현재 입력 7.0%");
     await expect(page.getByText(/이상 운용해야/)).toBeVisible();
   });
 });

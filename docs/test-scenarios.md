@@ -410,13 +410,15 @@ iterations: 1000
 | explanation | explanation.test.ts | 소수 |
 | stressNarrative | stressNarrative.test.ts | 소수 |
 | displayAmounts | displayAmounts.test.ts | 소수 |
+| 차트 데이터 | chartData.test.ts | 7 |
+| 차트 컴포넌트 | RetirementComparisonChart.test.tsx | 6 |
 | DB | db.test.ts | 소수 |
 | DC | dc.test.ts | 소수 |
 | salary | salary.test.ts | 소수 |
 | breakeven | breakeven.test.ts | 소수 |
-| 합계 | 21 파일 | 249 |
+| 합계 | 25 파일 | 296 |
 
-PR 12에서 인쇄 smoke + a11y baseline 약 6~8건 추가 예상 → 255~257건.
+Playwright E2E는 `e2e/chart.spec.ts`의 차트 9건을 포함해 총 49건이다.
 
 ---
 
@@ -425,3 +427,4 @@ PR 12에서 인쇄 smoke + a11y baseline 약 6~8건 추가 예상 → 255~257건
 | 날짜 | 변경 | 비고 |
 |------|------|------|
 | 2026-07-07 | 최초 작성 (PR 12) | 기존 249 테스트 전체 매핑 정리 |
+| 2026-07-10 | PR 18 차트 매핑 추가 | chartData 4건 + 컴포넌트 4건 + E2E 8건, 전체 수치 갱신 |

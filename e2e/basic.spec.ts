@@ -21,6 +21,8 @@ test.describe("4.1 기본 샘플 입력 smoke", () => {
     await expect(page.getByText(/이상 운용해야/)).toBeVisible();
 
     // 주의문구 — "세전 시뮬레이션입니다"
-    await expect(page.getByText(/세전 시뮬레이션입니다/)).toBeVisible();
+    await expect(
+      page.getByText(/본 결과는 입력값과 단순화된 계산 가정에 따른 세전 시뮬레이션입니다/)
+    ).toBeVisible();
   });
 });

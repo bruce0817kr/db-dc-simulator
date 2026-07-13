@@ -1,17 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { SimulationInput } from "@/src/calculator/types";
+import type { SimulationInput, SimulationResult } from "@/src/calculator/types";
 import { buildSensitivityMatrix, buildBreakevenByGrowthRate } from "@/src/calculator/sensitivity";
 import { ReturnRateTable } from "./ReturnRateTable";
 import { GrowthBreakevenTable } from "./GrowthBreakevenTable";
 import { SensitivityMatrixTable } from "./SensitivityMatrixTable";
+import { RetirementComparisonChart } from "./RetirementComparisonChart";
 
 interface SensitivitySectionProps {
-  input: SimulationInput;
+  readonly input: SimulationInput;
+  readonly result: SimulationResult;
 }
 
-export function SensitivitySection({ input }: SensitivitySectionProps) {
+export function SensitivitySection({ input, result }: SensitivitySectionProps) {
   const matrix = useMemo(() => buildSensitivityMatrix(input), [input]);
   const currentGrowthMatrix = useMemo(
     () => buildSensitivityMatrix(input, [input.wageGrowthRate]),
@@ -25,6 +27,7 @@ export function SensitivitySection({ input }: SensitivitySectionProps) {
 
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-gray-700">수익률별 결과 (현재 임금상승률 기준)</h3>
+        <RetirementComparisonChart input={input} result={result} matrix={currentGrowthMatrix} />
         <ReturnRateTable input={input} matrix={currentGrowthMatrix} />
       </div>
 

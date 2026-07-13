@@ -70,7 +70,7 @@ export function SimulatorPage() {
             onToggleDisplay={onToggleDisplay}
             onChange={onChange}
           />
-          {input && <SensitivitySection input={input} />}
+          {input && result && <SensitivitySection input={input} result={result} />}
           {input && result && volatility !== null && (
             <RiskSection input={input} volatility={volatility} dbAmount={result.dbAmount} />
           )}

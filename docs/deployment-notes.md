@@ -58,7 +58,7 @@
 pnpm install --frozen-lockfile
 
 # 2. 4-gate
-pnpm test       # 253/253 통과 기대
+pnpm test       # 296/296 통과 기대
 pnpm lint       # 오류·경고 없음
 pnpm build      # 정적 프리렌더 / 완료 + TS 검사 통과
 
@@ -75,6 +75,7 @@ pnpm build && pnpm start:standalone  # 프로덕션 빌드 QA (standalone 서버
 ```
 
 > `pnpm start:standalone`은 `output:"standalone"` 빌드 산출물(`.next/standalone/server.js`)로 서버를 실행한다. `next start`(`pnpm start`)는 standalone 설정에서 경고를 내므로 사용하지 않는다. E2E webServer도 동일 서버를 사용한다 (PR 16C).
+> 로컬 실행기의 바인딩 주소는 `STANDALONE_HOSTNAME`으로 재정의할 수 있으며 기본값은 `0.0.0.0`이다. 범용 `HOSTNAME`은 Git Bash 등이 컴퓨터 이름을 자동 주입할 수 있어 사용하지 않는다.
 
 ## 6-1. CI 게이트 (GitHub Actions) — PR 16A
 
@@ -190,3 +191,4 @@ docker compose up -d
 | 2026-07-09 | CI 게이트 절 추가 (PR 16A) | GitHub Actions `pnpm qa` 자동화, Node 20/pnpm 10/frozen-lockfile |
 | 2026-07-10 | Docker self-host 배포 절 추가 (PR 16B) | Vercel 폐기, `output:"standalone"` Docker 이미지·compose·롤백 갱신. 이미지는 README/docs 미포함, 빌드 시 npm registry 아웃바운드 필요 |
 | 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA 명령을 `next start` → standalone 서버(`pnpm start:standalone`)로 변경. `next start` standalone 경고 제거, Docker 와 동일 아티팩트 검증 |
+| 2026-07-10 | standalone 로컬 바인딩 안정화 (PR 18 후속 수정) | Git Bash의 자동 `HOSTNAME` 주입과 Playwright `127.0.0.1` 불일치 제거. 로컬 전용 `STANDALONE_HOSTNAME` 도입, Docker 실행 경로 불변 |
