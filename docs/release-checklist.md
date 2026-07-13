@@ -15,9 +15,11 @@
 | Build | `pnpm build` | 정적 프리렌더 `/` 완료 |
 | E2E | `pnpm e2e` | Playwright 전량 통과 (현재 49건, PR 14/15/17/18) |
 | 통합 QA | `pnpm qa` | test && lint && build && e2e 전부 통과 |
+| Container | GitHub Actions `Container image` | PR에서는 build-only, master/tag에서는 `pnpm qa` 성공 후 GHCR publish |
 
 - 4-gate 중 하나라도 실패 시 배포 불가.
 - GitHub Actions CI green: master push/PR 시 `.github/workflows/ci.yml`이 `pnpm qa`를 자동 실행한다 (PR 16A).
+- Container workflow green: PR에서는 registry 로그인·push·attestation step이 실행되지 않아야 한다 (PR 16D).
 
 - `package.json` scripts 기준:
   - `dev`: next dev
@@ -156,6 +158,15 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 - [ ] 차트 라이브러리 미사용
 - [ ] 외부 금융 API 미연동
 - [ ] Docker smoke (PR 16B): `docker compose up -d` → `127.0.0.1:3000` 200 응답 + `docker compose exec db-dc-simulator id` non-root(uid 1001) + 로그 치명 에러 0건
+- [ ] PR workflow에서 `Build image (no publish)`만 실행
+- [ ] master workflow에서 `latest`와 `sha-<40자리 SHA>` 발행
+- [ ] 향후 `v*` tag workflow에서 지원하는 SemVer core/prerelease tag 발행
+- [ ] 잘못된 `v*` tag는 publish 전에 실패
+- [ ] `pnpm qa` 실패 시 login·push·attestation 미실행
+- [ ] 발행 digest에 GitHub artifact attestation 생성
+- [ ] GHCR package가 이 저장소에 연결되고 visibility 정책이 명시됨
+- [ ] 불변 digest를 `DB_DC_SIMULATOR_IMAGE`로 지정해 healthcheck 통과
+- [ ] 이전 SHA 또는 로컬 build로 롤백 가능
 
 
 ## 9. 데이터 처리
@@ -192,3 +203,4 @@ Safari 검증은 macOS/iOS 환경이 없으면 N/A로 기록한다.
 | 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA → standalone 서버(`pnpm start:standalone`). `next start` 경고 제거, Docker 와 동일 아티팩트 검증. E2E 38건, scripts 목록 갱신 |
 | 2026-07-10 | URL 공유 고급 설정 옵트인 (PR 17) | 기본 미포함, 매 공유 재동의, 손상 URL 폴백, 80년·8KB 상한. 단위·컴포넌트 283건, E2E 40건 |
 | 2026-07-10 | DB/DC 민감도 차트 (PR 18) | 네이티브 SVG, 표 병행, 색상 외 구분, 375/768/1280·인쇄·axe 검증. 단위·컴포넌트 296건, E2E 49건 |
+| 2026-07-13 | GHCR 이미지 발행 (PR 16D) | PR build-only, QA-gated master/tag publish, SHA 추적·SemVer tag, digest provenance attestation, compose image override |

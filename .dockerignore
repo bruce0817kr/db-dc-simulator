@@ -36,6 +36,9 @@ yarn-error.log*
 # platform caches
 .vercel
 .fablize
+.agents
+.codex
+.codegraph
 .gjc
 .gstack
 
