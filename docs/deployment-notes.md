@@ -131,6 +131,39 @@ docker compose build --pull   # 베이스 이미지 최신화
 docker compose up -d          # 이미지 변경 시 재생성
 ```
 
+### 6-3. GHCR 이미지로 배포 (PR 16D)
+
+`master`에 병합된 이미지는 `ghcr.io/bruce0817kr/db-dc-simulator`로 발행된다. 운영 배포는 `latest` 대신 commit SHA 태그 또는 digest를 고정한다.
+
+```bash
+export DB_DC_SIMULATOR_IMAGE=ghcr.io/bruce0817kr/db-dc-simulator:sha-<40자리-commit-sha>
+docker compose pull
+docker compose up -d --no-build
+docker compose ps
+```
+
+digest 고정 시에는 다음 형태를 사용한다.
+
+```bash
+export DB_DC_SIMULATOR_IMAGE=ghcr.io/bruce0817kr/db-dc-simulator@sha256:<digest>
+```
+
+package가 private이면 먼저 최소 `read:packages` 권한의 token으로 로그인한다. public package는 익명 pull이 가능하다.
+
+```bash
+echo "$CR_PAT" | docker login ghcr.io -u <github-user> --password-stdin
+```
+
+최초 발행 후 GitHub package 설정에서 visibility와 저장소 권한 상속을 확인한다. package visibility는 저장소 visibility와 자동으로 같아지지 않는다.
+
+기존 로컬 빌드로 돌아갈 때는 환경변수를 제거한 뒤 다시 빌드한다.
+
+```bash
+unset DB_DC_SIMULATOR_IMAGE
+docker compose build
+docker compose up -d
+```
+
 **롤백**:
 ```bash
 git checkout <tag>            # 예: v0.1.2
@@ -160,6 +193,7 @@ docker compose up -d
 ## 8. 롤백 절차
 
 - **Docker (기본)**: `git checkout <tag>` → `docker compose build` → `docker compose up -d` (이전 태그 이미지로 재빌드·교체)
+- **GHCR**: 이전에 검증한 `sha-*` 또는 digest로 `DB_DC_SIMULATOR_IMAGE`를 변경 → `docker compose pull` → `docker compose up -d --no-build`
 - **이전 이미지 보존 시**: `docker image ls db-dc-simulator`로 태그 확인 후 재빌드 없이 교체 가능
 - Vercel 롤백은 미사용(폐기)
 
@@ -170,8 +204,10 @@ docker compose up -d
 
 - `v0.1.0-rc.1`: 릴리스 후보 (자동화 4-gate 통과 기준)
 - `v0.1.0`: 수동 QA 18개 시나리오 PASS 후 최종 릴리스
+- `v0.1.2`: 현재 Docker self-host 배포 기준 태그
 - Semantic Versioning 준수
-- `package.json`의 `version` 필드와 태그 일치 유지 (현재 `0.1.0`)
+- 이 저장소는 private npm package를 발행하지 않으므로 배포 버전의 기준은 Git tag다. `package.json`의 `version`은 현재 앱 내부 metadata `0.1.0`이며 GHCR tag 생성에는 사용하지 않는다.
+- PR 16D에서는 태그를 만들지 않는다. 다음 사용자 기능 또는 배포 릴리스에서 `v0.1.3` 여부를 판단한다.
 
 ## 10. 보안/개인정보
 
@@ -192,3 +228,4 @@ docker compose up -d
 | 2026-07-10 | Docker self-host 배포 절 추가 (PR 16B) | Vercel 폐기, `output:"standalone"` Docker 이미지·compose·롤백 갱신. 이미지는 README/docs 미포함, 빌드 시 npm registry 아웃바운드 필요 |
 | 2026-07-10 | webServer standalone 정합 (PR 16C) | E2E webServer·로컬 QA 명령을 `next start` → standalone 서버(`pnpm start:standalone`)로 변경. `next start` standalone 경고 제거, Docker 와 동일 아티팩트 검증 |
 | 2026-07-10 | standalone 로컬 바인딩 안정화 (PR 18 후속 수정) | Git Bash의 자동 `HOSTNAME` 주입과 Playwright `127.0.0.1` 불일치 제거. 로컬 전용 `STANDALONE_HOSTNAME` 도입, Docker 실행 경로 불변 |
+| 2026-07-13 | GHCR 이미지 발행 경로 추가 (PR 16D) | PR build-only, master/tag publish, SHA·SemVer 태그, provenance attestation, compose image override |

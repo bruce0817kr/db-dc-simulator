@@ -131,6 +131,7 @@ docs/
 | `docs/manual-qa.md` | 수동 QA 시나리오 18개 + 결과 기록 형식 |
 | `docs/deployment-notes.md` | 빌드 산출물, 호스팅, 롤백 절차 |
 | `docs/pr-18-chart-design.md` | DB/DC 민감도 차트의 데이터·접근성·반응형 설계 계약 |
+| `docs/pr-16d-ghcr-design.md` | GHCR 이미지 발행·태그·권한·배포 설계 계약 |
 
 ## 면책 고지
 
@@ -142,3 +143,5 @@ docs/
 ## 배포 전 확인
 
 릴리스 전 `docs/release-checklist.md`와 `docs/manual-qa.md`의 항목을 모두 충족해야 합니다. 배포 환경 정보는 `docs/deployment-notes.md`를 참조.
+
+Docker 이미지는 로컬에서 직접 빌드하거나, PR 16D 병합 후 GHCR의 불변 `sha-*` 태그 또는 digest를 지정해 실행할 수 있습니다. 운영 배포에서는 `latest`보다 불변 참조를 사용합니다.
