@@ -2,7 +2,7 @@ services:
   db-dc-simulator:
     build:
       context: .
-    image: db-dc-simulator:local
+    image: ${DB_DC_SIMULATOR_IMAGE:-db-dc-simulator:local}
     container_name: db-dc-simulator
     restart: unless-stopped
     ports:
